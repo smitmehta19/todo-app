@@ -14,9 +14,19 @@ The project was restarted because the demos had grown too complex. Everything be
 | R6 | To use it on a phone, the file must be hosted at a web address | Critical | Open | n/a |
 | R7 | Visual redesign: coloured group cards, big date, one characterful font | Design | Done | Yes |
 | R8 | Old demos deleted (moved to the Recycle Bin) | Housekeeping | Done | Yes, from the Recycle Bin |
+| R11 | Hosted on GitHub Pages; installable to the home screen; own git repo | Critical | Done | Yes |
 | R10 | Background changed from dark cocoa to midnight blue | Design | Done | Yes |
 | R9 | "Squishy" redesign through the impeccable process; Today first; real laptop layout | Design | Done | Yes |
-| C1 | Git deferred; the home-directory repo must not be used | Critical | Open | n/a |
+| C1 | Git deferred; the home-directory repo must not be used | Critical | Done (R11) | n/a |
+
+### R11. Hosting on GitHub Pages (2026-09-23)
+- Decision: public repo `smitmehta19/todo-app`, published at https://smitmehta19.github.io/todo-app/. The root page redirects to `app/`.
+- Why: the owner's GitHub CLI was already signed in, it is free, it serves `https`, and there is no build step. Public is required for Pages on a free plan. The repo holds only code and design notes; tasks never leave the owner's device.
+- Rejected: Netlify, Vercel and Cloudflare (each needs a new login, which I can't do for the owner); a Claude artifact (its sandbox blocks file downloads, which would break backups).
+- Also added: a web app manifest and icons (a lemon jelly tile with a tick), so "Add to Home Screen" opens full-screen with its own icon; and a small network-first service worker, so the app opens offline. It caches the app only, never tasks.
+- Git: the project now has its own repository at the project folder, so the home-directory repo is no longer involved (closes C1). Commits use the global identity, the owner's personal Gmail. `.claude/` and any `todo-backup-*.json` are ignored.
+- Caveats: data lives per browser and per address. On iPhone, the home-screen app and Safari keep separate storage, so use one or the other. Any other site the owner later puts on `smitmehta19.github.io` shares the same storage origin; the key `todo.v1` is specific enough to avoid clashes.
+- To update the live app: commit and push to `main`; Pages redeploys in about a minute.
 
 ### R10. Midnight blue instead of cocoa (2026-09-23)
 - Problem: the owner said the dark brown ground looked like "poop colour".
