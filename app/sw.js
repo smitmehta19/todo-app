@@ -1,6 +1,6 @@
 /* Offline support. Network first, so a new version always wins when you are online;
    the cached copy is only used when there is no connection. Your tasks are not stored here. */
-const CACHE = 'todo-shell-v2';
+const CACHE = 'todo-shell-v3';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

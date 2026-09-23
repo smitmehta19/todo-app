@@ -14,11 +14,22 @@ The project was restarted because the demos had grown too complex. Everything be
 | R6 | To use it on a phone, the file must be hosted at a web address | Critical | Open | n/a |
 | R7 | Visual redesign: coloured group cards, big date, one characterful font | Design | Done | Yes |
 | R8 | Old demos deleted (moved to the Recycle Bin) | Housekeeping | Done | Yes, from the Recycle Bin |
+| R13 | Four pets to choose from (Mochi, Boo, Sprout, Miso the cat), playable by drag, flick, tap and tricks; empty-state blobs removed | Design | Done | Yes, "No pet" in Settings |
 | R12 | Mochi the helper (tilt, cheers, peeks) and group bars that open in place on Today | Design | Done | Yes, Mochi can be switched off |
 | R11 | Hosted on GitHub Pages; installable to the home screen; own git repo | Critical | Done | Yes |
 | R10 | Background changed from dark cocoa to midnight blue | Design | Done | Yes |
 | R9 | "Squishy" redesign through the impeccable process; Today first; real laptop layout | Design | Done | Yes |
 | C1 | Git deferred; the home-directory repo must not be used | Critical | Done (R11) | n/a |
+
+### R13. Pets (2026-09-24)
+- Request: the owner found two blobs confusing (a green empty-state blob at the top that behaved differently from Mochi at the bottom). They asked for a choice of three pets with different personalities, Mochi being one, plus a fourth: a very cute cat that walks anywhere on the screen and does cat things. All pets should be playable: flick, move around, make them do actions. The pet is picked in Settings.
+- Fix for the confusion: empty states no longer draw a blob. Only the chosen pet is ever on screen.
+- Engine: one shared physics loop (gravity, wall bounces, floor = add box top, runs only while something moves), pointer drag with velocity sampling for flicks, tap, press-and-hold menu, and a per-pet definition (art, weight, bounce, tricks, voice). Miso adds a small behaviour loop and climbs task cards, found again by selector after each redraw and scroll.
+- Settings: "Your pet" row with a Change button opening a picker of four cards and "No pet". Tilt switch kept for phones.
+- Data: `mochi` settings became `pet` (kind, tilt, greeted), migrated from older saves and backups.
+- Rejected: several pets at once (clutter, and the original complaint was two creatures); sounds; pets reacting to deleting.
+- Verified in the browser: every pet spawns and speaks; every trick runs without errors; flicking Mochi (bounces, lands, speaks); flicking Miso (tumbles, lands on its feet, grooms); Miso walking, hopping onto the add box, jumping onto a task card, riding it while scrolling and dropping off when it leaves; tap purr and hearts; Sprout growing leaves and blooming when today is clear; Boo gliding in; Nap with Undo; migration of old saves; phone and laptop layouts.
+- Not verified: real touch flicks, gyroscope and shake on a physical phone; battery use over a long session.
 
 ### R12. Mochi and group bars (2026-09-24)
 - Requests: the owner asked for the yellow blob to move when the phone tilts, and to become a playful, non-intrusive helper that congratulates finished tasks. Mid-build they added a second request: seeing a group's tasks took too many taps (Groups tab, then tile), so groups should sit folded on Today, open in place when tapped, and fold again when tapping anywhere else.

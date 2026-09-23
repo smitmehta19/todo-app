@@ -374,28 +374,84 @@ fieldset>legend.fl{padding:0;margin-top:0}
 .acc-foot .textbtn .ic{width:16px;height:16px}
 .acc-in .gempty{padding:6px 6px 2px}
 
-/* ---------- Mochi ---------- */
-/* sits on the dock's top edge, half tucked behind it; the dock is z 5, Mochi z 4 */
-.mochi{position:fixed;z-index:4;right:26px;bottom:120px;width:66px;height:60px;pointer-events:none;transition:transform 460ms var(--spring),opacity 220ms}
-.mochi.away{transform:translateY(52px) scale(.7);opacity:0}
-.mochi-btn{pointer-events:auto;display:block;width:66px;height:60px;padding:0;border-radius:40%;touch-action:manipulation;transform-origin:50% 100%;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-.mochi-btn:focus-visible{outline-offset:0}
-.mochi-btn .blob{width:66px;height:60px;display:block;animation:breathe 3.8s ease-in-out infinite;transform-origin:50% 92%}
+/* ---------- pets ---------- */
+/* one pet at a time. It rests on the add box (tucked behind its edge: dock z 5, pet z 4)
+   and comes to the front (z 7) while it is flying, dragged, clinging or on a card */
+.pet{position:fixed;left:0;top:0;z-index:4;pointer-events:none;will-change:transform}
+.pet.front{z-index:7}
+.pet-sq{transform-origin:50% 100%}
+.pet-hit{pointer-events:auto;display:block;padding:0;border-radius:42%;touch-action:none;cursor:grab;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.pet-hit:active{cursor:grabbing}
+.pet-hit:focus-visible{outline-offset:2px}
+.pet-hit svg{display:block;width:100%;height:100%;overflow:visible}
+.pet .blob.mochi-art{animation:breathe 3.8s ease-in-out infinite;transform-origin:50% 92%}
 @keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.035,.965)}}
-.say{position:absolute;right:56px;bottom:44px;width:max-content;max-width:min(236px,64vw);padding:11px 15px;border-radius:20px 20px 6px 20px;background:var(--cream);color:var(--ink);font-family:var(--body);font-weight:800;font-size:15px;line-height:1.3;text-align:left;box-shadow:0 4px 0 var(--cream-edge),0 16px 28px -10px rgba(0,0,0,.7);transform-origin:100% 100%;opacity:0;transform:scale(.5) translateY(10px);transition:opacity 150ms ease,transform 420ms var(--spring);pointer-events:none}
+.kind-boo .pet-hit{animation:bob 3.2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.boo .b-all{filter:drop-shadow(0 0 12px rgba(214,206,255,.45))}
+.kind-boo.glow .boo .b-all{filter:drop-shadow(0 0 22px rgba(255,236,160,.95)) brightness(1.08)}
+.kind-boo.hiding .pet-hit{opacity:.28;transition:opacity 500ms}
+
+/* Sprout */
+.sp-tilt{transform-box:view-box;transform-origin:60px 86px;transform:rotate(calc(var(--tx,0) * 16deg))}
+.sp-sway{transform-box:view-box;transform-origin:60px 86px;animation:sway 3.4s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+.sway-fast .sp-sway{animation-duration:.7s}
+.shake .sp-sway{animation:leafshake .12s linear 6}
+@keyframes leafshake{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+.leaf-new{transform-box:fill-box;transform-origin:0% 100%;animation:leafpop 800ms var(--spring)}
+@keyframes leafpop{from{transform:scale(0)}}
+.sunny .sprout .b-all{filter:drop-shadow(0 0 18px rgba(255,213,79,.8))}
+
+/* Miso */
+.cat .leg{transform-box:fill-box;transform-origin:50% 10%}
+.cat .c-tail{transform-box:view-box;transform-origin:26px 62px;animation:swish 2.6s ease-in-out infinite}
+@keyframes swish{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(14deg)}}
+.pose-walk .leg{animation:step .46s ease-in-out infinite}
+.pose-run .leg{animation:step .2s ease-in-out infinite}
+.pose-walk .leg.b{animation-delay:-.23s}
+.pose-run .leg.b{animation-delay:-.1s}
+@keyframes step{0%,100%{transform:rotate(26deg)}50%{transform:rotate(-26deg)}}
+.pose-run .c-tail{animation:none;transform:rotate(-30deg)}
+.pose-dangle .leg{transform:scaleY(1.3)}
+.pose-dangle .c-tail{animation:none;transform:rotate(62deg)}
+.pose-crouch .c-all{transform-box:view-box;transform-origin:60px 96px;animation:wiggle .26s ease-in-out infinite}
+@keyframes wiggle{0%,100%{transform:scaleY(.84) rotate(-2.5deg)}50%{transform:scaleY(.84) rotate(2.5deg)}}
+.pose-stretch .c-all{transform-box:view-box;transform-origin:36px 96px;transform:rotate(11deg) scaleX(1.1)}
+.purr .c-all{animation:purr .09s linear infinite}
+@keyframes purr{0%,100%{transform:translateX(0)}50%{transform:translateX(.9px)}}
+.zzz{font-family:var(--display);font-weight:800;fill:#bcc0e0;animation:zz 2.6s ease-in-out infinite}
+@keyframes zz{0%{opacity:0;transform:translate(0,0)}30%{opacity:1}100%{opacity:0;transform:translate(10px,-18px)}}
+
+/* speech bubble follows the pet */
+.say{position:fixed;left:0;top:0;z-index:8;width:max-content;max-width:min(240px,66vw);padding:11px 15px;border-radius:20px;background:var(--cream);color:var(--ink);font-family:var(--body);font-weight:800;font-size:15px;line-height:1.3;text-align:left;box-shadow:0 4px 0 var(--cream-edge),0 16px 28px -10px rgba(0,0,0,.7);opacity:0;transform:scale(.5);transform-origin:var(--tail,50%) 100%;transition:opacity 150ms ease,transform 420ms var(--spring);pointer-events:none}
 .say.show{opacity:1;transform:none;pointer-events:auto;cursor:pointer}
-.peek{position:fixed;z-index:6;top:38%;width:96px;height:88px;pointer-events:none;transition:transform 560ms var(--spring)}
-.peek.l{left:0;transform:translateX(-120%)}
-.peek.r{right:0;transform:translateX(120%)}
-.peek.l.in{transform:translateX(-30%)}
-.peek.r.in{transform:translateX(30%)}
-.peek .blob{width:96px;height:88px;display:block}
-.peek.l .blob{transform:rotate(38deg)}
-.peek.r .blob{transform:rotate(-38deg)}
-.peek .say{bottom:auto;top:-30px;right:auto;left:74px;border-radius:20px 20px 20px 6px;transform-origin:0 100%}
-.peek.r .say{left:auto;right:74px;border-radius:20px 20px 6px 20px;transform-origin:100% 100%}
-.heart{position:fixed;z-index:6;width:22px;height:22px;pointer-events:none}
-@media (min-width:900px){.mochi{right:auto}}
+.say::after{content:"";position:absolute;bottom:-6px;left:var(--tail,50%);width:13px;height:13px;margin-left:-6.5px;background:var(--cream);transform:rotate(45deg);border-radius:3px}
+.say.below{transform-origin:var(--tail,50%) 0}
+.say.below::after{bottom:auto;top:-6px}
+
+/* tricks menu */
+.petmenu{position:fixed;left:0;top:0;z-index:9;display:flex;flex-wrap:wrap;gap:8px;width:240px;padding:14px;border-radius:24px;background:var(--surface2);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 6px 0 var(--ledge),0 22px 44px -10px rgba(0,0,0,.8);transform-origin:50% 100%;animation:menupop 380ms var(--spring)}
+@keyframes menupop{from{opacity:0;transform:scale(.7) translateY(10px)}}
+.petmenu .ttl{width:100%;margin:0 2px 2px;font-family:var(--display);font-size:18px;font-weight:800}
+.petmenu .chip{background:var(--surface);max-width:none}
+.petmenu .chip.soft{color:var(--mute)}
+.heart{position:fixed;z-index:8;width:22px;height:22px;pointer-events:none}
+.leafbit{position:fixed;z-index:8;width:14px;height:10px;border-radius:0 100% 0 100%;background:#9be15d;pointer-events:none}
+
+/* pet picker */
+.pets{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.petcard{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 10px 16px;border-radius:24px;background:var(--bg);text-align:center;box-shadow:inset 0 3px 8px rgba(0,0,0,.4);transition:transform 340ms var(--spring),background-color 160ms}
+.petcard:active{transform:scale(.96)}
+.petcard[aria-pressed="true"]{background:var(--surface2);box-shadow:inset 0 0 0 3px #ffd54f,0 4px 0 var(--ledge)}
+.petcard .art{width:92px;height:88px;display:grid;place-items:end center}
+.petcard .art svg{width:92px;height:88px;overflow:visible;animation:breathe 3.4s ease-in-out infinite;transform-origin:50% 100%}
+.petcard b{font-family:var(--display);font-size:21px;font-weight:800;line-height:1.1}
+.petcard small{font-size:13px;font-weight:700;color:var(--mute);line-height:1.35}
+.petcard .tickmark{position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:50%;background:#ffd54f;color:var(--ink);display:grid;place-items:center}
+.petcard .tickmark .ic{width:16px;height:16px}
+.petmini{flex:none;width:52px;height:52px;display:grid;place-items:center}
+.petmini svg{width:52px;height:52px;overflow:visible}
 
 /* settings rows */
 .subh{margin:26px 0 4px;font-size:21px;font-weight:800}
@@ -471,12 +527,10 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-<!-- Mochi: sits on the dock, cheers, peeks in now and then -->
-<div class="mochi" id="mochi" hidden>
-  <div class="say" id="mochiSay" role="status" aria-live="polite"></div>
-  <button type="button" class="mochi-btn" id="mochiBtn" aria-label="Mochi, your helper. Tap to say hi, press and hold to let Mochi nap."></button>
-</div>
-<div class="peek" id="mochiPeek" aria-hidden="true"><div class="say" id="peekSay"></div></div>
+<!-- your pet: lives on the add box; drag, flick, tap, or press and hold for tricks -->
+<div class="pet" id="pet" hidden><div class="pet-sq" id="petSq"><button type="button" class="pet-hit" id="petHit"></button></div></div>
+<div class="say" id="petSay" role="status" aria-live="polite"></div>
+<div class="petmenu" id="petMenu" role="menu" hidden></div>
 
 <!-- task editor -->
 <dialog class="sheet" id="taskSheet" aria-labelledby="tsHead">
@@ -547,10 +601,21 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
       <input type="file" id="dsImport" accept="application/json,.json" hidden>
     </div>
     <p class="fine">Your tasks live in this browser, on this device only. Nothing is sent anywhere. Clearing the browser's site data deletes them, so a backup file is the copy that survives. Save one every week or so to Google Drive, iCloud or your computer. Restoring replaces what is here now.</p>
-    <h3 class="subh">Mochi</h3>
-    <div class="setrow"><span><b>Mochi, your little helper</b><small>Cheers you on and says hi now and then.</small></span><button type="button" class="switch" role="switch" id="swMochi" aria-checked="true" aria-label="Mochi, your little helper"></button></div>
-    <div class="setrow" id="rowTilt"><span><b>Move with my phone</b><small>Tilt your phone and Mochi wobbles along. Try a shake.</small></span><button type="button" class="switch" role="switch" id="swTilt" aria-checked="true" aria-label="Move with my phone"></button></div>
+    <h3 class="subh">Your pet</h3>
+    <div class="setrow"><div class="petmini" id="petMini"></div><span><b id="petName">Mochi</b><small id="petBlurb"></small></span><button type="button" class="btn plain" id="petChange">Change</button></div>
+    <div class="setrow" id="rowTilt"><span><b>Move with my phone</b><small>Tilt your phone and your pet moves along. Give it a shake for a surprise.</small></span><button type="button" class="switch" role="switch" id="swTilt" aria-checked="true" aria-label="Move with my phone"></button></div>
     <div class="actions" style="margin-top:16px"><span class="grow"></span><button type="button" class="btn plain" id="dsClose">Close</button></div>
+  </div></div>
+</dialog>
+
+<!-- pet picker -->
+<dialog class="sheet" id="petSheet" aria-labelledby="ptHead">
+  <div class="sheet-in"><div class="sheet-body">
+    <div class="grab"></div>
+    <h2 id="ptHead">Choose a pet</h2>
+    <p class="fine" style="margin-top:6px">Drag them anywhere, flick them, tap to play, and press and hold for tricks.</p>
+    <div class="pets" id="petCards"></div>
+    <div class="actions" style="margin-top:18px"><button type="button" class="btn danger" id="petNone">No pet</button><span class="grow"></span><button type="button" class="btn plain" id="petClose">Done</button></div>
   </div></div>
 </dialog>
 
@@ -590,7 +655,7 @@ const icon = {
   x: svg('<path d="M6 6l12 12M18 6L6 18"/>'),
   warn: svg('<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17.5v.5"/>'),
 };
-/* the jelly blob: Mochi and friends. Layers (body, shine, face, eyes) move separately so tilt reads as jelly */
+/* the jelly blob: Mochi's body. Layers (body, shine, face, eyes) move separately so tilt reads as jelly */
 const INK = '#1b1533';
 const stroke = (d, w = 4.5) => `<path d="${d}" stroke="${INK}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`;
 const eye = (x, big) => `<ellipse cx="${x}" cy="62" rx="${big ? 6.8 : 5.5}" ry="${big ? 8 : 6.5}" fill="${INK}"/><circle cx="${x + 2}" cy="${big ? 58.5 : 59.5}" r="${big ? 2.4 : 1.8}" fill="#fff"/>${big ? `<circle cx="${x - 2}" cy="65" r="1.2" fill="#fff"/>` : ''}`;
@@ -649,7 +714,16 @@ function ago(ts){
 }
 
 /* ---------- storage ---------- */
-function blank(){ return { version:1, groups:[], tasks:[], lastBackup:null, bannerHiddenUntil:null, showDone:false, mochi:{ on:true, tilt:true, greeted:null } }; }
+/* pet settings; older saves had Mochi only, under "mochi" */
+const PET_KINDS = ['mochi', 'boo', 'sprout', 'miso', 'none'];
+function petPrefs(o){
+  const p = o.pet && typeof o.pet === 'object' ? o.pet : null, m = o.mochi && typeof o.mochi === 'object' ? o.mochi : {};
+  const kind = p && PET_KINDS.includes(p.kind) ? p.kind : m.on === false ? 'none' : 'mochi';
+  const tilt = p ? p.tilt !== false : m.tilt !== false;
+  const g = p ? p.greeted : m.greeted;
+  return { kind, tilt, greeted:isDay(g) ? g : null };
+}
+function blank(){ return { version:1, groups:[], tasks:[], lastBackup:null, bannerHiddenUntil:null, showDone:false, pet:{ kind:'mochi', tilt:true, greeted:null } }; }
 function normalise(o){
   if (!o || typeof o !== 'object' || !Array.isArray(o.tasks)) throw new Error('Not a backup');
   const now = new Date().toISOString();
@@ -670,7 +744,7 @@ function normalise(o){
     lastBackup:typeof o.lastBackup === 'string' ? o.lastBackup : null,
     bannerHiddenUntil:isDay(o.bannerHiddenUntil) ? o.bannerHiddenUntil : null,
     showDone:!!o.showDone,
-    mochi:{ on:!(o.mochi && o.mochi.on === false), tilt:!(o.mochi && o.mochi.tilt === false), greeted:o.mochi && isDay(o.mochi.greeted) ? o.mochi.greeted : null } };
+    pet:petPrefs(o) };
 }
 let unreadable = false;
 function load(){
@@ -715,8 +789,8 @@ const mainTab = () => ui.tab === 'cal' ? 'cal' : 'groups';
 /* ---------- toast with undo ---------- */
 let toastTimer = null, undoFn = null;
 function placeToast(){
-  const mochiUp = db.mochi.on && !$('mochi').hidden && !$('mochi').classList.contains('away');
-  const h = wide() ? 0 : $('addForm').offsetHeight + document.querySelector('.tabs').offsetHeight + 22 + (mochiUp ? 50 : 0);
+  const petUp = P.kind && !P.surf && P.y > floorAt(P.x) - 120;
+  const h = wide() ? 0 : $('addForm').offsetHeight + document.querySelector('.tabs').offsetHeight + 22 + (petUp ? 50 : 0);
   document.documentElement.style.setProperty('--toast-b', `${h}px`);
 }
 function toast(msg, undo){
@@ -799,10 +873,10 @@ function renderToday(){
   if (stats.length) h += `<div class="chips">${stats.join('')}</div>`;
   h += bannerHTML();
   if (!db.tasks.length && !db.groups.length){
-    h += `<div class="empty">${blob('#ffd54f')}<h2>Hi! Let's fill this up.</h2><p>Type anything in the box below. For something bigger, start a group:</p>
+    h += `<div class="empty"><h2>Hi! Let's fill this up.</h2><p>Type anything in the box below. For something bigger, start a group:</p>
       <div class="suggest">${SUGGEST.map(([n, c]) => `<button type="button" class="jelly" style="--c:${COLORS[c]}" data-act="suggest" data-name="${esc(n)}" data-color="${c}">${icon.plus}${esc(n)}</button>`).join('')}<button type="button" class="jelly neutral" data-act="new-group">Something else</button></div></div>`;
   } else if (!late.length && !now.length && !soon.length && !unsorted.length){
-    h += `<div class="empty">${blob('#9be15d')}<h2>Nothing due today</h2><p>${db.groups.length ? 'Enjoy it, or open one of your groups below.' : 'Enjoy it. Add something below whenever you like.'}</p></div>`;
+    h += `<div class="empty"><h2>Nothing due today</h2><p>${db.groups.length ? 'Enjoy it, or open one of your groups below.' : 'Enjoy it. Add something below whenever you like.'}</p></div>`;
   }
   if (late.length) h += sec('Late', late.length, { cls:'late' }) + list(late, { showGroup:true });
   if (now.length) h += sec('Today', now.length) + list(now, { showGroup:true });
@@ -864,7 +938,7 @@ function renderBoard(){
       </button>
       <button type="button" class="gtile new" data-act="new-group">${icon.plus}New group</button>
     </div>`;
-  if (!db.groups.length) h += `<div class="empty">${blob('#6fa8ff', 'sleepy')}<h2>No groups yet</h2><p>Groups are for the big things, like a wedding or a job hunt.</p></div>`;
+  if (!db.groups.length) h += `<div class="empty"><h2>No groups yet</h2><p>Groups are for the big things, like a wedding or a job hunt.</p></div>`;
   return h;
 }
 function renderGroup(id){
@@ -884,7 +958,7 @@ function renderGroup(id){
       </div>
     </div>`;
   h += items.length ? list(items) : done.length
-    ? `<div class="empty">${blob(loose ? '#ffd54f' : COLORS[g.color])}<h2>All done!</h2><p>Everything in ${esc(name)} is ticked off.</p></div>`
+    ? `<div class="empty"><h2>All done!</h2><p>Everything in ${esc(name)} is ticked off.</p></div>`
     : `<p class="gempty">Nothing here yet. Type below to add the first task.</p>`;
   if (done.length){
     h += `<div class="donehead"><button type="button" class="tog" data-act="toggle-done" data-id="${id}" aria-expanded="${showDone}">${icon.chev}Done <span style="color:var(--faint)">${done.length}</span></button><button type="button" class="textbtn" data-act="clear-done" data-id="${id}">Clear</button></div>`;
@@ -969,7 +1043,7 @@ function render(){
   updateDock();
   ui.flash = null;
   tiltEls();
-  syncMochi();
+  syncPet();
 }
 /* a view transition lets a tapped tile grow into its group page */
 function transition(fn){
@@ -1008,7 +1082,7 @@ function toggle(id){
   const g = t.groupId && groupById(t.groupId);
   const finished = g && !db.tasks.some(x => x.groupId === g.id && !x.done);
   toast(finished ? `Everything in ${g.name} is done!` : `Done: ${t.title}`, () => { const x = find(id); if (x){ x.done = false; x.doneAt = null; commit(); } });
-  mochiDone(t, finished ? g : null);
+  petDone(t, finished ? g : null);
 }
 function completeFromTile(btn, id){
   const li = btn.closest('.task'), t = find(id);
@@ -1054,7 +1128,7 @@ function addTask(e){
     const g = t.groupId && groupById(t.groupId);
     toast(g ? `Added to ${g.name}` : t.due ? `Added for ${dueLabel(t.due, false).toLowerCase()}` : 'Added');
   }
-  mochiAdded();
+  petAdded();
 }
 
 /* ---------- sheets ---------- */
@@ -1194,7 +1268,7 @@ function renderData(){
     <div class="fact wide${stale ? ' warn' : ''}"><div><b>${db.lastBackup ? ago(db.lastBackup) : 'Never'}</b><span>last backup</span></div></div>
     <div class="fact wide">${icon.safe}<p>${persisted === true ? 'The browser has agreed not to clear this data on its own.' : persisted === false ? 'The browser may clear this data if the device runs low on space. Keep a backup.' : 'This browser does not say whether it may clear this data. Keep a backup.'}</p></div>`;
 }
-async function openData(){ await checkPersist(); renderData(); paintSwitches(); $('dataSheet').showModal(); }
+async function openData(){ await checkPersist(); renderData(); paintPetSettings(); $('dataSheet').showModal(); }
 function markBackup(){ db.lastBackup = new Date().toISOString(); db.bannerHiddenUntil = null; commit(); renderData(); toast('Backup saved'); }
 async function exportData(){
   requestPersist();
@@ -1236,187 +1310,771 @@ $('dsImportBtn').addEventListener('click', () => $('dsImport').click());
 $('dsImport').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f) importData(f); });
 $('dsClose').addEventListener('click', () => closeSheet($('dataSheet')));
 
-/* ---------- Mochi: a little jelly helper ---------- */
-/* Thesis: finishing things should feel noticed. Mochi cheers, never blocks, and can always be sent to nap. */
-const MOCHI_C = '#ffd54f';
-const LINES = {
-  done: ['Nice one!', 'Done and dusted.', 'Look at you go!', 'Ticked off. Amazing.', 'Congratulations, you did the task!', "That's the stuff.", 'One less thing to carry.', 'Smooth. Very smooth.', 'Yay! Another one.', 'Proud of you.', 'Boom. Done.', 'You make this look easy.'],
-  streak: ['Three in a row! Who even are you?', "You're on a roll today!", "Unstoppable. I'm getting dizzy watching."],
-  today: ["Today's list is clear. Go do something fun!", 'Nothing left for today. You earned a break.'],
-  added: ['Got it!', 'Noted.', 'On the list.', "I'll keep that safe.", 'Added. No rush.'],
-  tap: ["Hi! I'm Mochi.", 'Hehe, that tickles.', 'Boop!', 'Squish!', 'What are we doing today?', "I'm made of jelly, you know.", 'Still here, still cheering.'],
-  idle: ['Psst. Have some water.', 'Small steps still count.', 'You can add a note to any task.', 'Stretch break? Your shoulders say yes.', 'Back up your list now and then. I worry.', "Just checking in. You're doing fine.", 'Is it snack time? It feels like snack time.'],
-  idleTouch: ['Tilt your phone. I dare you.', 'Give your phone a little shake. Go on.'],
-  idleMouse: ["Move your mouse around. I'm watching. Nicely."],
-};
-const groupLines = n => [`Everything in ${n} is done! I'm so proud.`, `${n}: all finished! Take a bow.`, `You cleared ${n}. Jelly beans for everyone!`];
+/* ---------- pets: Mochi, Boo, Sprout and Miso ---------- */
+/* Thesis: finishing things should feel noticed. One pet at a time lives on the add box. It cheers, never blocks,
+   and can be dragged, flicked, tapped, taught tricks, or sent to nap. Everything here is optional charm. */
+const touchy = () => matchMedia('(pointer: coarse)').matches;
+const rnd = (a, b) => a + Math.random() * (b - a);
+const clampN = (v, a, b) => Math.max(a, Math.min(b, v));
 const lastPick = {};
-function pickLine(key, pool = LINES[key]){
-  const options = pool.length > 1 ? pool.filter(l => l !== lastPick[key]) : pool;
-  const l = options[Math.floor(Math.random() * options.length)];
+function pickLine(key, pool){
+  const o = pool.length > 1 ? pool.filter(l => l !== lastPick[key]) : pool;
+  const l = o[Math.floor(Math.random() * o.length)];
   lastPick[key] = l; return l;
 }
-const touchy = () => matchMedia('(pointer: coarse)').matches;
-const M = { lastSpoke:0, lastAct:Date.now(), lastIdle:Date.now(), hideT:null, moodT:null, taps:[], dones:[], peeking:false, mood:'happy', pressT:null, napped:false };
-const baseMood = () => { const h = new Date().getHours(); return h >= 23 || h < 5 ? 'sleepy' : 'happy'; };
-function busy(){ return !!document.querySelector('dialog[open]') || (document.activeElement && document.activeElement.matches('input,textarea') && document.activeElement.value); }
+const isNight = () => { const h = new Date().getHours(); return h >= 23 || h < 5; };
+function busy(){ return !!document.querySelector('dialog[open]') || (document.activeElement && document.activeElement.matches('input,textarea') && !!document.activeElement.value); }
 
-function drawMochi(){
-  $('mochiBtn').innerHTML = blob(MOCHI_C, M.mood);
+/* ---- art ---- */
+const eyeAt = (x, y, big) => `<ellipse cx="${x}" cy="${y}" rx="${big ? 6.4 : 5}" ry="${big ? 8.4 : 7}" fill="${INK}"/><circle cx="${x + 1.8}" cy="${y - 2.6}" r="${big ? 2.3 : 1.8}" fill="#fff"/>`;
+const heartXY = (x, y, s = 1) => `<path transform="translate(${x} ${y}) scale(${s})" d="M0 7c-7-4.5-10-8-10-11.5a4.8 4.8 0 0 1 10-2.2 4.8 4.8 0 0 1 10 2.2c0 3.5-3 7-10 11.5z" fill="#ff4f7e"/>`;
+const swirlXY = (x, y, r = 6) => `<circle cx="${x}" cy="${y}" r="${r}" stroke="${INK}" stroke-width="2.8" fill="none"/><circle cx="${x}" cy="${y}" r="${r / 3}" fill="${INK}"/>`;
+const closedUp = (x, y, w = 6) => `M${x - w} ${y + 1}c${w / 2} -4 ${w * 1.5} -4 ${w * 2} 0`;
+const closedDown = (x, y, w = 6) => `M${x - w} ${y}c${w / 2} 3 ${w * 1.5} 3 ${w * 2} 0`;
+
+function faceSet(m, L, R, Y, mouthY, small){
+  const e = (x, big) => small ? `<ellipse cx="${x}" cy="${Y}" rx="${big ? 4.6 : 3.8}" ry="${big ? 6 : 4.8}" fill="${INK}"/><circle cx="${x + 1.3}" cy="${Y - 1.8}" r="${big ? 1.7 : 1.3}" fill="#fff"/>` : eyeAt(x, Y, big);
+  const w = small ? 4.5 : 6, cx = (L + R) / 2;
+  const smile = stroke(`M${cx - 6} ${mouthY}c3 5 9 5 12 0`, small ? 3 : 3.8);
+  switch (m){
+    case 'wow': return { eyes: e(L, 1) + e(R, 1), mouth: `<ellipse cx="${cx}" cy="${mouthY + 3}" rx="${small ? 3.2 : 4}" ry="${small ? 4 : 5.5}" fill="${INK}"/>` };
+    case 'shy': return { eyes: stroke(closedUp(L, Y, w) + closedUp(R, Y, w), 3.3), mouth: stroke(`M${cx - 4} ${mouthY + 1}c2 2.5 6 2.5 8 0`, 3), blush: .95 };
+    case 'love': return { eyes: heartXY(L, Y, small ? .72 : 1) + heartXY(R, Y, small ? .72 : 1), mouth: smile };
+    case 'sleepy': return { eyes: stroke(closedDown(L, Y, w) + closedDown(R, Y, w), 3.3), mouth: `<circle cx="${cx}" cy="${mouthY + 2}" r="2.3" fill="${INK}"/>` };
+    case 'dizzy': return { eyes: swirlXY(L, Y, small ? 4.5 : 6) + swirlXY(R, Y, small ? 4.5 : 6), mouth: stroke(`M${cx - 8} ${mouthY + 3}c3-3 5 3 8 0s5 3 8 0`, 3) };
+    case 'wink': return { eyes: stroke(closedDown(L, Y, w), 3.3) + e(R), mouth: smile };
+    case 'worried': return { eyes: e(L) + e(R) + stroke(`M${L - 7} ${Y - 11}l9 3M${R + 7} ${Y - 11}l-9 3`, 3), mouth: stroke(`M${cx - 5} ${mouthY + 4}c3-3 7-3 10 0`, 3.3) };
+    case 'scare': return { eyes: e(L - 1, 1) + e(R + 1, 1), mouth: `<path d="M${cx - 11} ${mouthY - 2}c0 16 22 16 22 0z" fill="${INK}"/><path d="M${cx - 6} ${mouthY + 6}c3 3 9 3 12 0" stroke="#ff7a9c" stroke-width="3.5" stroke-linecap="round" fill="none"/>` };
+    default: return { eyes: e(L) + e(R), mouth: smile };
+  }
+}
+
+const mochiSVG = mood => blob('#ffd54f', mood).replace('class="blob"', 'class="blob mochi-art"');
+
+function booSVG(mood){
+  const f = faceSet(mood, 48, 72, 56, 67);
+  const b = f.blush || .55;
+  return `<svg class="blob boo" viewBox="0 0 120 132" aria-hidden="true">
+  <ellipse class="b-shadow" cx="60" cy="128" rx="26" ry="3.5" fill="rgba(0,0,0,.25)"/>
+  <g class="b-all">
+    <path d="M18 70c-10 1-15 9-12 16 7-1 12-6 12-11zM102 70c10 1 15 9 12 16-7-1-12-6-12-11z" fill="#e3deff"/>
+    <path d="M60 10c26 0 44 20 44 46v44c0 4-4 6-7 3l-8-7-9 8c-2 2-5 2-7 0l-9-8-9 8c-2 2-5 2-7 0l-9-8-8 7c-3 3-7 1-7-3V56C16 30 34 10 60 10z" fill="#f4f2ff"/>
+    <path d="M104 84v16c0 4-4 6-7 3l-8-7-9 8c-2 2-5 2-7 0l-9-8-9 8c-2 2-5 2-7 0l-9-8-8 7c-3 3-7 1-7-3V84c10 9 26 13 44 13s34-4 44-13z" fill="#d8d2ff" opacity=".6"/>
+    <g class="b-shine"><path d="M34 36c5-9 14-14 24-15" stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none"/></g>
+    <g class="b-face">
+      <ellipse cx="37" cy="66" rx="6.5" ry="4" fill="#ff8fb8" opacity="${b}"/><ellipse cx="83" cy="66" rx="6.5" ry="4" fill="#ff8fb8" opacity="${b}"/>
+      <g class="b-eyes">${f.eyes}</g>${f.mouth}
+    </g>
+  </g></svg>`;
+}
+
+const LEAVES = [[76, -1], [68, 1], [60, -1], [52, 1], [44, -1]];
+const leafPath = (y, s) => `<path d="M60 ${y}c${8 * s} -13 ${22 * s} -13 ${28 * s} -6c${-5 * s} 10 ${-19 * s} 13 ${-28 * s} 6z" fill="#9be15d"/><path d="M${60 + 4 * s} ${y - 1}l${15 * s} -4" stroke="#6fbf3f" stroke-width="2" stroke-linecap="round"/>`;
+function sproutSVG(p){
+  const n = p.leaves || 0, f = faceSet(p.mood, 51, 69, 104, 110, true);
+  let leaves = '';
+  for (let i = 0; i < n; i++){ const [y, s] = LEAVES[i]; leaves += `<g class="${p.freshLeaf && i === n - 1 ? 'leaf-new' : ''}">${leafPath(y, s)}</g>`; }
+  const top = 38;
+  const stem = n ? `<path d="M60 84C60 70 58 56 60 ${top}" stroke="#7cc85a" stroke-width="5" stroke-linecap="round" fill="none"/>`
+    : `<path d="M60 84v-8" stroke="#7cc85a" stroke-width="5" stroke-linecap="round"/><g transform="translate(24 30.4) scale(.6)">${leafPath(76, -1)}${leafPath(76, 1)}</g>`;
+  const flower = p.bloom
+    ? `<g class="leaf-new">${[0, 72, 144, 216, 288].map(a => `<ellipse cx="60" cy="${top - 9}" rx="6" ry="9" fill="#ff7a9c" transform="rotate(${a} 60 ${top})"/>`).join('')}<circle cx="60" cy="${top}" r="6.5" fill="#ffd54f"/></g>`
+    : n >= 5 ? `<ellipse cx="60" cy="${top - 3}" rx="5" ry="7.5" fill="#ff9de2"/>` : '';
+  return `<svg class="blob sprout" viewBox="0 0 120 136" aria-hidden="true">
+  <ellipse class="b-shadow" cx="60" cy="132" rx="30" ry="4" fill="rgba(0,0,0,.3)"/>
+  <g class="b-all">
+    <g class="sp-tilt"><g class="sp-sway">${stem}${leaves}${flower}</g></g>
+    <ellipse cx="60" cy="86" rx="28" ry="5" fill="#2a2152"/>
+    <path d="M30 88h60l-6 36c-1 5-4 8-9 8H45c-5 0-8-3-9-8z" fill="#ff9de2"/>
+    <rect x="25" y="80" width="70" height="13" rx="6.5" fill="#ff86d6"/>
+    <g class="b-shine"><path d="M37 99l3 17" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".55"/></g>
+    <g class="b-face"><circle cx="43" cy="112" r="4.2" fill="#ff5c9a" opacity=".5"/><circle cx="77" cy="112" r="4.2" fill="#ff5c9a" opacity=".5"/><g class="b-eyes">${f.eyes}</g>${f.mouth}</g>
+  </g></svg>`;
+}
+
+const FUR = '#ffac5f', FUR2 = '#f28c3a', CREAM = '#ffe7cc', NOSE = '#ff9db5';
+function catEyes(kind, x1, x2, y){
+  if (kind === 'happy') return stroke(closedUp(x1, y, 4) + closedUp(x2, y, 4), 2.8);
+  if (kind === 'closed') return stroke(closedDown(x1, y, 4) + closedDown(x2, y, 4), 2.8);
+  if (kind === 'love') return heartXY(x1, y - 1, .62) + heartXY(x2, y - 1, .62);
+  if (kind === 'dizzy') return swirlXY(x1, y, 4.2) + swirlXY(x2, y, 4.2);
+  const big = kind === 'wide';
+  return `<ellipse cx="${x1}" cy="${y}" rx="${big ? 5 : 3.8}" ry="${big ? 5.6 : 4.8}" fill="${INK}"/><ellipse cx="${x2}" cy="${y}" rx="${big ? 5 : 3.8}" ry="${big ? 5.6 : 4.8}" fill="${INK}"/><circle cx="${x1 + 1.4}" cy="${y - 1.7}" r="${big ? 1.9 : 1.4}" fill="#fff"/><circle cx="${x2 + 1.4}" cy="${y - 1.7}" r="${big ? 1.9 : 1.4}" fill="#fff"/>`;
+}
+function catHead(cx, cy, eyes, mouth){
+  const m = mouth === 'open'
+    ? `<path d="M${cx - 5} ${cy + 8}c0 9 10 9 10 0z" fill="${INK}"/><path d="M${cx - 3} ${cy + 12}c2 2 4 2 6 0" stroke="${NOSE}" stroke-width="2.2" fill="none"/>`
+    : mouth === 'mlem'
+    ? stroke(`M${cx - 5} ${cy + 8}c2 2 4 2 5 0c1 2 3 2 5 0`, 2.2) + `<path d="M${cx - 2} ${cy + 9}c0 6 5 6 5 0z" fill="${NOSE}"/>`
+    : stroke(`M${cx - 5} ${cy + 8}c2 2 4 2 5 0c1 2 3 2 5 0`, 2.2);
+  return `<g class="b-face c-head">
+    <path d="M${cx - 20} ${cy - 6}l3-21 14 11z" fill="${FUR}"/><path d="M${cx - 17} ${cy - 9}l2-12 8 7z" fill="${NOSE}"/>
+    <path d="M${cx + 20} ${cy - 6}l-3-21-14 11z" fill="${FUR}"/><path d="M${cx + 17} ${cy - 9}l-2-12-8 7z" fill="${NOSE}"/>
+    <circle cx="${cx}" cy="${cy}" r="21" fill="${FUR}"/>
+    <path d="M${cx - 6} ${cy - 20}l2 7M${cx} ${cy - 21}v7M${cx + 6} ${cy - 20}l-2 7" stroke="${FUR2}" stroke-width="2.6" stroke-linecap="round"/>
+    <ellipse cx="${cx}" cy="${cy + 8}" rx="11" ry="8" fill="${CREAM}"/>
+    <circle cx="${cx - 13}" cy="${cy + 5}" r="4" fill="${NOSE}" opacity=".55"/><circle cx="${cx + 13}" cy="${cy + 5}" r="4" fill="${NOSE}" opacity=".55"/>
+    <g class="b-eyes">${catEyes(eyes, cx - 8, cx + 8, cy - 1)}</g>
+    <path d="M${cx - 2.5} ${cy + 3.5}h5l-2.5 3z" fill="${NOSE}"/>${m}
+    <path d="M${cx - 12} ${cy + 5}h-10M${cx - 12} ${cy + 8}l-9 3M${cx + 12} ${cy + 5}h10M${cx + 12} ${cy + 8}l9 3" stroke="#fff3e6" stroke-width="1.3" stroke-linecap="round" opacity=".7"/>
+  </g>`;
+}
+function catSVG(p){
+  const pose = p.pose || 'sit';
+  const eyes = pose === 'loaf' ? 'closed' : pose === 'dangle' ? 'wide' : ({ happy:'happy', sleepy:'closed', wow:'wide', love:'love', dizzy:'dizzy', wink:'happy', shy:'happy' }[p.mood] || 'open');
+  const mouth = pose === 'yawn' ? 'open' : p.mlem ? 'mlem' : '';
+  let body;
+  if (pose === 'loaf'){
+    body = `<g class="c-all">
+      <path class="c-tail" d="M24 90c14 7 46 8 64 1" stroke="${FUR2}" stroke-width="8" stroke-linecap="round" fill="none"/>
+      <ellipse cx="56" cy="80" rx="40" ry="17" fill="${FUR}"/>
+      <path d="M38 66c2 5 2 9 0 13M52 64c2 5 2 9 0 13M66 65c2 5 2 9 0 12" stroke="${FUR2}" stroke-width="3" stroke-linecap="round" fill="none"/>
+      ${catHead(88, 66, eyes, mouth)}
+      <text class="zzz" x="100" y="36" font-size="18">z</text><text class="zzz" style="animation-delay:-1.3s" x="108" y="26" font-size="13">z</text>
+    </g>`;
+  } else if (pose === 'sit' || pose === 'groom' || pose === 'yawn'){
+    const paw = pose === 'groom' ? `<rect x="60" y="30" width="10" height="24" rx="5" fill="${FUR}" transform="rotate(-24 65 52)"/>` : `<rect x="62" y="70" width="10" height="26" rx="5" fill="${FUR}"/><ellipse cx="67" cy="95" rx="6" ry="3" fill="${CREAM}"/>`;
+    body = `<g class="c-all">
+      <path class="c-tail" d="M32 92c-14 3-25-3-23-17" stroke="${FUR}" stroke-width="9" stroke-linecap="round" fill="none"/>
+      <ellipse cx="54" cy="66" rx="25" ry="29" fill="${FUR}"/>
+      <path d="M36 54c3 4 3 9 0 13M72 54c-3 4-3 9 0 13" stroke="${FUR2}" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <ellipse cx="57" cy="72" rx="13" ry="17" fill="${CREAM}"/>
+      <ellipse cx="34" cy="84" rx="16" ry="12" fill="${FUR}"/>
+      <rect x="47" y="70" width="10" height="26" rx="5" fill="${FUR}"/><ellipse cx="52" cy="95" rx="6" ry="3" fill="${CREAM}"/>
+      ${pose === 'groom' ? catHead(58, 30, 'closed', 'mlem') : catHead(56, 28, eyes, mouth)}
+      ${paw}
+    </g>`;
+  } else {
+    body = `<g class="c-all">
+      <path class="c-tail" d="M26 62c-12-2-18-16-12-32" stroke="${FUR}" stroke-width="9" stroke-linecap="round" fill="none"/>
+      <rect class="leg b" x="28" y="66" width="10" height="28" rx="5" fill="${FUR2}"/>
+      <rect class="leg" x="74" y="66" width="10" height="28" rx="5" fill="${FUR2}"/>
+      <ellipse cx="56" cy="64" rx="36" ry="21" fill="${FUR}"/>
+      <path d="M40 46c2 6 2 10 0 14M52 44c2 6 2 10 0 14M64 45c2 6 2 10 0 13" stroke="${FUR2}" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <ellipse cx="60" cy="75" rx="22" ry="9" fill="${CREAM}"/>
+      <rect class="leg" x="36" y="68" width="11" height="28" rx="5.5" fill="${FUR}"/>
+      <rect class="leg b" x="82" y="68" width="11" height="28" rx="5.5" fill="${FUR}"/>
+      ${catHead(88, 40, eyes, mouth)}
+    </g>`;
+  }
+  return `<svg class="blob cat" viewBox="0 0 120 100" aria-hidden="true"><ellipse class="b-shadow" cx="58" cy="97" rx="34" ry="3.5" fill="rgba(0,0,0,.3)"/>${body}</svg>`;
+}
+
+/* ---- the four pets ---- */
+const PETS = {
+  mochi: {
+    name:'Mochi', blurb:'A bouncy jelly cheerleader. Loves hopping, rolling and cheering you on.',
+    w:66, h:60, grav:2300, bounce:.62, fric:.9, tilt:1100,
+    art:p => mochiSVG(p.mood), preview:() => mochiSVG('happy'),
+    tricks:[['hop','Jump'], ['spin','Spin'], ['dance','Wiggle'], ['flop','Flop']],
+    lines:{
+      intro:"Hi! I'm Mochi. Flick me, I dare you.",
+      done:['Nice one!', 'Done and dusted.', 'Look at you go!', 'Ticked off. Amazing.', 'Congratulations, you did the task!', "That's the stuff.", 'One less thing to carry.', 'Smooth. Very smooth.', 'Yay! Another one.', 'Proud of you.', 'Boom. Done.', 'You make this look easy.'],
+      streak:['Three in a row! Who even are you?', "You're on a roll today!", "Unstoppable. I'm getting dizzy watching."],
+      group:n => [`Everything in ${n} is done! I'm so proud.`, `${n}: all finished! Take a bow.`, `You cleared ${n}. Jelly beans for everyone!`],
+      today:["Today's list is clear. Go do something fun!", 'Nothing left for today. You earned a break.'],
+      added:['Got it!', 'Noted.', 'On the list.', "I'll keep that safe.", 'Added. No rush.'],
+      tap:["Hi! I'm Mochi.", 'Hehe, that tickles.', 'Boop!', 'Squish!', 'What are we doing today?', "I'm made of jelly, you know."],
+      held:['Where are we going?', 'Wheee! Up high!', 'Careful, I wobble.'],
+      flick:['WHEEE!', 'Again! Again!', "I'm fine. I'm jelly.", 'That was the best one yet!'],
+      spam:"Okay, okay, I'm dizzy now.",
+      shake:'Whoa! Earthquake?!',
+      idle:['Psst. Have some water.', 'Small steps still count.', 'You can add a note to any task.', 'Stretch break? Your shoulders say yes.', "Just checking in. You're doing fine.", 'Is it snack time? It feels like snack time.'],
+      night:"It's late. Tomorrow is fine too.",
+      hello:['Good morning!', 'Hey there!', 'Good evening!'],
+    },
+  },
+  boo: {
+    name:'Boo', blurb:'A shy little ghost. Floats instead of falling and speaks very softly.',
+    w:62, h:68, float:true, air:.965, bounce:.5, tilt:520, hover:44,
+    art:p => booSVG(p.mood), preview:() => booSVG('shy'),
+    tricks:[['loop','Loop-de-loop'], ['hide','Hide'], ['scare','Boo!'], ['glow','Glow']],
+    lines:{
+      intro:"h-hi. i'm boo. don't worry, i'm a nice ghost.",
+      done:['oh! you did it...', 'that was really good. (whispers)', '*happy floaty noises*', 'i believed in you the whole time.', 'nice. very nice.', 'one less thing. *twirls*'],
+      streak:['so many in a row... wow...', "you're glowing. i can tell. ghosts know."],
+      group:n => [`you finished all of ${n}?! *spins happily*`, `${n} is done... i might cry. ghost tears.`],
+      today:['nothing left for today... rest a little?', 'all clear today. i made you a tiny cloud. ☁'.replace(' ☁', '')],
+      added:['okay... noted.', "i'll remember it for you.", 'one more thing. you can do it.'],
+      tap:['eep!', 'you found me!', '*blushes*', 'boo. (sorry)', 'hi again...'],
+      held:['eep! gently, please...', "i'm floating anyway, you know."],
+      flick:['wheeeee... okay that was fun.', '*drifts dramatically*', 'i flew! did you see?'],
+      spam:'so many pokes... i need to lie down. ghosts can lie down.',
+      shake:'the house is haunted... wait, that is me.',
+      idle:['just... floating here.', "you're doing okay. really.", 'boo. (was that scary? sorry)', 'drink some water, maybe?', "i'll be quiet. mostly."],
+      night:"it's late... even ghosts sleep sometimes.",
+      hello:['good morning...', 'oh, hi...', 'good evening...'],
+    },
+  },
+  sprout: {
+    name:'Sprout', blurb:'A calm little plant. Grows a leaf for every task you finish today and blooms when today is clear.',
+    w:60, h:68, grav:2600, bounce:.18, fric:.72, tilt:320,
+    art:p => sproutSVG(p), preview:() => sproutSVG({ mood:'happy', leaves:3 }),
+    tricks:[['sway','Sway'], ['stretch','Stretch'], ['sun','Sunbathe'], ['shake','Shake leaves']],
+    lines:{
+      intro:"Hello. I'm Sprout. Finish tasks and I'll grow.",
+      done:['Another leaf!', 'Growing nicely. Like you.', 'Water, sun, and ticked boxes.', 'Steady growth. Good.', 'I felt that one in my roots.'],
+      streak:['Three leaves in no time. Photosynthesis is booming.', 'Look at us grow!'],
+      group:n => [`${n} is done. I'm blooming!`, `A whole group finished. That's a whole season of work.`],
+      today:['Today is clear. I bloomed for you.', 'Nothing left today. Sit in the sun a while.'],
+      added:['Planted.', 'A new seed. Good.', 'Noted, gardener.'],
+      tap:['*rustle rustle*', "Careful, I'm delicate.", 'Hello, gardener.', 'Still growing.'],
+      held:['Mind the roots!', 'Oh, a change of scenery.'],
+      flick:['My soil! ...I am fine.', 'Plants are not meant to fly.', 'Roots first, flights later.'],
+      spam:'Too much sun, too fast. Give me a moment.',
+      shake:'Is this... wind? Big wind?',
+      idle:['Roots first, then leaves.', 'Take it one leaf at a time.', 'Photosynthesising. Do not disturb.', 'Have you had water today? I have.', 'Slow is still growing.'],
+      night:'Even plants rest at night. So can you.',
+      hello:['Morning. Let us grow something today.', 'Good afternoon, gardener.', 'Good evening.'],
+    },
+  },
+  miso: {
+    name:'Miso', blurb:'A ginger cat who wanders anywhere, naps on your tasks, and always lands on its feet.',
+    w:84, h:70, grav:2400, bounce:.05, fric:.6, tilt:0, walker:true, lift:6,
+    art:p => catSVG(p), preview:() => catSVG({ pose:'sit', mood:'happy' }),
+    tricks:[['purr','Pet'], ['zoomies','Zoomies'], ['loaf','Loaf'], ['stretch','Stretch']],
+    lines:{
+      intro:'Mrrp. (I am Miso. This is my screen now.)',
+      done:['Mrrp! (Nice work.)', '*slow blink* (That means I love you.)', 'Mew. (Acceptable.)', 'Prrrt! (Another one!)', '*tail wiggle* (Proud of you.)'],
+      streak:['MRROW! (You are on fire.)', '*impressed ear twitch*'],
+      group:n => [`MRRROW! (${n} is done!)`, `*zoomies* (${n}, finished!)`],
+      today:['*happy loaf* (Today is clear.)', 'Purrrr. (Nothing left today. Nap time.)'],
+      added:['Mrrp? (Another one?)', '*sniffs the task*', 'Mew. (Noted, human.)'],
+      tap:['Purrrr...', 'Mrrp!', '*headbutt*', 'Mlem.', '*slow blink*'],
+      held:['Mrrp?! (Put me down.)', '*dangles with dignity*'],
+      flick:['*lands on feet* (Meant to do that.)', 'Mrow! (Rude. But fine.)', '*licks paw like nothing happened*'],
+      spam:'Hsss... (Okay, that is enough petting.)',
+      shake:'MROW?! (The floor is moving.)',
+      idle:['Mrrp. (Feed me? No? Okay.)', '*stares at a wall*', '*judges you lovingly*', 'Mew. (Water break?)', '*pretends to be busy*'],
+      night:'*yawns* (It is late, human.)',
+      hello:['Mrrp! (Good morning.)', 'Mew. (Oh, it is you.)', 'Mrrp. (Evening, human.)'],
+    },
+  },
+};
+
+/* ---- state ---- */
+const P = { kind:null, def:null, x:0, y:0, vx:0, vy:0, rot:0, vr:0, sq:0, vsq:0, face:1, mode:'rest', pose:'sit', mood:'happy',
+  leaves:0, bloom:false, freshLeaf:false, mlem:false, surf:null, walkTo:null, zoom:0, jump:null, cling:null, float:null,
+  run:false, last:0, press:null, drag:null, flung:0, menu:false, lastSpoke:0, lastAct:Date.now(), lastIdle:Date.now(),
+  dones:[], taps:[], moodT:null, hideT:null, catT:null, idleT:null, askedTilt:false };
+const petEl = () => $('pet');
+const dockRect = () => $('addForm').getBoundingClientRect();
+function floorAt(x){
+  const r = dockRect();
+  if (!wide() || (x >= r.left - 8 && x <= r.right + 8)) return r.top + 10;
+  return innerHeight - 6;
+}
+const minX = () => P.def.w / 2 + 4, maxX = () => innerWidth - P.def.w / 2 - 4, topY = () => P.def.h + 8;
+const homeX = () => clampN(dockRect().right - P.def.w / 2 - 16, minX(), maxX());
+const restY = x => floorAt(x) - (P.def.float ? P.def.hover : 0) - (P.def.lift || 0);
+const baseMood = () => isNight() ? 'sleepy' : 'happy';
+
+/* ---- drawing ---- */
+function drawPet(){
+  if (!P.kind) return;
+  const hit = $('petHit');
+  hit.style.width = `${P.def.w}px`; hit.style.height = `${P.def.h}px`;
+  hit.innerHTML = P.def.art(P);
+  hit.setAttribute('aria-label', `${P.def.name}, your pet. Tap to play, drag or flick to move, press and hold for tricks.`);
+  const el = petEl();
+  el.className = `pet kind-${P.kind} pose-${P.pose}${el.classList.contains('front') ? ' front' : ''}${['purr','glow','hiding','sunny','sway-fast','shake'].filter(c => el.classList.contains(c)).map(c => ' ' + c).join('')}`;
   tiltEls();
+  P.freshLeaf = false;
 }
+function setPose(pose){ if (P.pose !== pose){ P.pose = pose; drawPet(); } }
 function setMood(m, hold = 0){
-  clearTimeout(M.moodT);
-  M.mood = m; drawMochi();
-  if (hold) M.moodT = setTimeout(() => { M.mood = baseMood(); drawMochi(); }, hold);
+  clearTimeout(P.moodT);
+  if (P.mood !== m){ P.mood = m; drawPet(); }
+  if (hold) P.moodT = setTimeout(() => { if (P.mode !== 'drag'){ P.mood = baseMood(); drawPet(); } }, hold);
 }
-function placeMochi(){
-  const el = $('mochi'); if (el.hidden) return;
-  const r = $('addForm').getBoundingClientRect();
-  el.style.bottom = `${Math.round(innerHeight - r.top - 10)}px`;
-  el.style.right = wide() ? 'auto' : `${Math.round(innerWidth - r.right + 18)}px`;
-  el.style.left = wide() ? `${Math.round(r.right - 66 - 18)}px` : 'auto';
+function flash(cls, ms){
+  const el = petEl(); el.classList.add(cls);
+  setTimeout(() => el.classList.remove(cls), ms);
 }
-/* hide Mochi's perch while a big blob is already on screen, so there are never two of them */
-function syncMochi(){
-  const el = $('mochi');
-  el.hidden = !db.mochi.on;
-  if (el.hidden) return;
-  const bigBlob = [...document.querySelectorAll('.empty > .blob')].some(b => b.offsetParent !== null);
-  el.classList.toggle('away', bigBlob || M.peeking);
-  placeMochi();
+function paintPet(){
+  const el = petEl(), d = P.def;
+  el.style.transform = `translate3d(${(P.x - d.w / 2).toFixed(1)}px,${(P.y - d.h).toFixed(1)}px,0)`;
+  $('petSq').style.transform = `scale(${(P.face * (1 + P.sq)).toFixed(3)},${(1 - P.sq).toFixed(3)}) rotate(${P.rot.toFixed(1)}deg)`;
+  const front = P.mode === 'drag' || P.mode === 'fly' || P.mode === 'cling' || !!P.surf || P.y < floorAt(P.x) - (d.float ? d.hover + 6 : 6);
+  el.classList.toggle('front', front);
+  placeBubble();
 }
-function speak(text, { mood = 'wow', hold = 2200, force = false, cooldown = 7000 } = {}){
-  if (!db.mochi.on || M.napped) return false;
+
+/* ---- speech ---- */
+function placeBubble(){
+  const s = $('petSay');
+  if (!s.classList.contains('show') || !P.kind) return;
+  const bw = s.offsetWidth, bh = s.offsetHeight, d = P.def;
+  let left = clampN(P.x - bw / 2, 8, innerWidth - bw - 8);
+  let top = P.y - d.h - bh - 12, below = false;
+  if (top < 8){ top = P.y + 10; below = true; }
+  s.style.left = `${left}px`; s.style.top = `${top}px`;
+  s.style.setProperty('--tail', `${clampN(P.x - left, 18, bw - 18)}px`);
+  s.classList.toggle('below', below);
+}
+function say(text, { mood = 'wow', hold = 2200, force = false, cooldown = 7000 } = {}){
+  if (!P.kind || !text) return false;
   const now = Date.now();
-  if (!force && (now - M.lastSpoke < cooldown || busy())) return false;
-  if ($('mochi').classList.contains('away') && !M.peeking) return false;
-  M.lastSpoke = now;
+  if (!force && (now - P.lastSpoke < cooldown || busy())) return false;
+  P.lastSpoke = now;
   setMood(mood, hold + 400);
-  const s = $('mochiSay');
+  const s = $('petSay');
   s.textContent = text;
   s.classList.remove('show'); void s.offsetWidth; s.classList.add('show');
-  clearTimeout(M.hideT);
-  M.hideT = setTimeout(() => s.classList.remove('show'), Math.min(5200, Math.max(2600, 1600 + text.length * 50)));
+  placeBubble();
+  clearTimeout(P.hideT);
+  P.hideT = setTimeout(() => s.classList.remove('show'), Math.min(5200, Math.max(2600, 1600 + text.length * 50)));
   return true;
 }
-function hop(kind = 'hop'){
-  if (!db.mochi.on || reduceMotion()) return;
-  const b = $('mochiBtn');
-  const frames = kind === 'big'
-    ? [{ transform:'translateY(0) scale(1,1) rotate(0)' }, { transform:'translateY(0) scale(1.22,.78) rotate(0)', offset:.15 }, { transform:'translateY(-54px) scale(.9,1.12) rotate(180deg)', offset:.45 }, { transform:'translateY(-10px) scale(1,1) rotate(360deg)', offset:.7 }, { transform:'translateY(0) scale(1.18,.82) rotate(360deg)', offset:.85 }, { transform:'translateY(0) scale(1,1) rotate(360deg)' }]
-    : kind === 'nod'
-    ? [{ transform:'scale(1,1)' }, { transform:'scale(1.12,.88)', offset:.35 }, { transform:'scale(.95,1.06)', offset:.7 }, { transform:'scale(1,1)' }]
-    : [{ transform:'translateY(0) scale(1,1)' }, { transform:'translateY(0) scale(1.18,.82)', offset:.18 }, { transform:'translateY(-30px) scale(.9,1.12)', offset:.45 }, { transform:'translateY(0) scale(1.14,.86)', offset:.75 }, { transform:'translateY(0) scale(1,1)' }];
-  b.animate(frames, { duration:kind === 'big' ? 900 : kind === 'nod' ? 420 : 620, easing:'cubic-bezier(.3,.7,.4,1)' });
-}
-function heart(){
-  if (!db.mochi.on || reduceMotion() || $('mochi').classList.contains('away')) return;
-  const r = $('mochiBtn').getBoundingClientRect();
-  const h = document.createElement('span');
-  h.className = 'heart';
-  h.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21c-7-4.6-10-8.4-10-12a5 5 0 0 1 10-2 5 5 0 0 1 10 2c0 3.6-3 7.4-10 12z" fill="#ff4f7e"/></svg>';
-  h.style.left = `${r.left + r.width / 2 - 11}px`; h.style.top = `${r.top}px`;
-  document.body.appendChild(h);
-  h.animate([{ transform:'translateY(0) scale(.4)', opacity:0 }, { transform:'translateY(-18px) scale(1.1)', opacity:1, offset:.3 }, { transform:`translate(${Math.random() * 30 - 15}px,-62px) scale(.9)`, opacity:0 }], { duration:1000, easing:'cubic-bezier(.2,.7,.4,1)' }).onfinish = () => h.remove();
-}
-/* called when a task becomes done */
-function mochiDone(t, finishedGroup){
-  if (!db.mochi.on || M.napped) return;
-  const now = Date.now();
-  M.dones = M.dones.filter(x => now - x < 90000).concat(now);
-  const t0 = today();
-  const todayClear = t.due && t.due <= t0 && !db.tasks.some(x => !x.done && x.due && x.due <= t0);
-  if (finishedGroup){ hop('big'); speak(pickLine('group', groupLines(finishedGroup.name)), { mood:'love', hold:3200, force:true }); return; }
-  if (todayClear){ hop('big'); speak(pickLine('today'), { mood:'wow', hold:3000, force:true }); return; }
-  hop();
-  if (M.dones.length >= 3 && M.dones.length % 3 === 0){ if (speak(pickLine('streak'), { mood:'wow', cooldown:4000 })) return; }
-  if (!speak(pickLine('done'), { mood:'wow' })) heart();
-}
-function mochiAdded(){
-  if (!db.mochi.on || M.napped) return;
-  hop('nod');
-  if (Math.random() < .3) speak(pickLine('added'), { mood:'happy', cooldown:20000 });
-}
-function mochiTap(){
-  M.lastAct = Date.now();
-  if (touchy() && db.mochi.tilt && !T.got) askTilt();
-  const now = Date.now();
-  M.taps = M.taps.filter(x => now - x < 2500).concat(now);
-  if (M.taps.length >= 5){ M.taps = []; dizzy('Okay, okay, I\'m dizzy now.'); return; }
-  hop('nod');
-  speak(pickLine('tap'), { mood:'wink', hold:1400, force:true });
-}
-function dizzy(line){
-  if (!db.mochi.on || M.napped) return;
-  if (!reduceMotion()) $('mochiBtn').animate([{ transform:'rotate(0)' }, { transform:'rotate(-18deg)' }, { transform:'rotate(16deg)' }, { transform:'rotate(-10deg)' }, { transform:'rotate(6deg)' }, { transform:'rotate(0)' }], { duration:900, easing:'ease-out' });
-  speak(line, { mood:'dizzy', hold:2400, force:true });
-}
-/* now and then, Mochi peeks in from a screen edge with a small line, then goes home */
-function peekOut(text){
-  if (reduceMotion()){ speak(text, { mood:'happy', force:true }); return; }
-  const p = $('mochiPeek'), side = Math.random() < .5 ? 'l' : 'r';
-  M.peeking = true; syncMochi();
-  p.className = `peek ${side}`;
-  p.querySelector('.blob')?.remove();
-  p.insertAdjacentHTML('afterbegin', blob(MOCHI_C, 'happy'));
-  tiltEls();
-  requestAnimationFrame(() => requestAnimationFrame(() => p.classList.add('in')));
-  const s = $('peekSay'); s.textContent = text;
-  setTimeout(() => s.classList.add('show'), 420);
-  const stay = Math.min(5200, Math.max(3200, 1800 + text.length * 55));
-  setTimeout(() => { s.classList.remove('show'); p.classList.remove('in'); }, stay);
-  setTimeout(() => { M.peeking = false; syncMochi(); hop('nod'); }, stay + 600);
-}
-function mochiIdle(){
-  if (!db.mochi.on || M.napped || document.hidden || busy() || M.peeking) return;
-  const now = Date.now();
-  if (now - M.lastAct < 45000 || now - M.lastIdle < 180000 || now - M.lastSpoke < 30000) return;
-  if (Math.random() < .5) return;
-  M.lastIdle = now; M.lastSpoke = now;
-  const pool = LINES.idle.concat(touchy() ? (db.mochi.tilt ? LINES.idleTouch : []) : LINES.idleMouse);
-  peekOut(pickLine('idle', pool));
-}
-function mochiGreet(){
-  if (!db.mochi.on || db.mochi.greeted === today()) return;
-  const h = new Date().getHours(), t0 = today(), open = db.tasks.filter(t => !t.done);
-  const late = open.filter(t => t.due && t.due < t0).length, due = open.filter(t => t.due === t0).length;
-  let line, mood = 'happy';
-  if (h >= 23 || h < 5){ line = "It's late. Tomorrow is fine too."; mood = 'sleepy'; }
-  else {
-    line = h < 12 ? 'Good morning!' : h < 17 ? 'Hey there!' : 'Good evening!';
-    if (!db.tasks.length) line += " I'm Mochi. Tap me any time.";
-    else if (late) line += ` ${plural(late, 'thing')} slipped a little. No stress, one at a time.`;
-    else if (due) line += ` ${plural(due, 'thing')} for today. You've got this.`;
-    else line += ' Nothing due today.';
+function hushBubble(){ $('petSay').classList.remove('show'); }
+function heart(n = 1){
+  if (!P.kind || reduceMotion()) return;
+  for (let i = 0; i < n; i++){
+    const h = document.createElement('span');
+    h.className = 'heart';
+    h.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21c-7-4.6-10-8.4-10-12a5 5 0 0 1 10-2 5 5 0 0 1 10 2c0 3.6-3 7.4-10 12z" fill="#ff4f7e"/></svg>';
+    h.style.left = `${P.x - 11 + rnd(-10, 10)}px`; h.style.top = `${P.y - P.def.h}px`;
+    document.body.appendChild(h);
+    h.animate([{ transform:'translateY(0) scale(.4)', opacity:0 }, { transform:'translateY(-18px) scale(1.1)', opacity:1, offset:.3 }, { transform:`translate(${rnd(-18, 18)}px,-64px) scale(.9)`, opacity:0 }],
+      { duration:1000, delay:i * 180, easing:'cubic-bezier(.2,.7,.4,1)', fill:'backwards' }).onfinish = () => h.remove();
   }
-  if (speak(line, { mood, hold:3400, force:true })){ db.mochi.greeted = t0; save(); }
-}
-function napMochi(){
-  db.mochi.on = false; save(); syncMochi(); placeToast();
-  toast('Mochi is napping. Wake Mochi up in Settings.', () => { db.mochi.on = true; save(); syncMochi(); hop('nod'); });
 }
 
-/* tilt: every blob leans, squashes and looks where the phone tips (or where the mouse is) */
+/* ---- physics loop (runs only while something is moving) ---- */
+function petWake(){
+  if (!P.kind || P.run || document.hidden) return;
+  P.run = true; P.last = performance.now();
+  requestAnimationFrame(petStep);
+}
+/* only a real phone tilt pushes the pet; the mouse just makes eyes follow */
+function tiltForce(){ return T.got && db.pet.tilt && Math.abs(T.x) > .14 ? T.x * P.def.tilt : 0; }
+function petStep(now){
+  if (!P.kind){ P.run = false; return; }
+  const dt = Math.min(.034, (now - P.last) / 1000); P.last = now;
+  const d = P.def;
+  let moving = false;
+
+  if (P.mode === 'drag'){
+    const nx = clampN(P.drag.tx, minX(), maxX()), ny = clampN(P.drag.ty, topY(), restY(nx) + 4);
+    const sp = Math.hypot(nx - P.x, ny - P.y) / Math.max(dt, .001);
+    P.x = nx; P.y = ny;
+    P.sq += ((-Math.min(.18, sp / 5000)) - P.sq) * .3;
+    moving = true;
+  } else if (P.mode === 'fly'){
+    const ax = tiltForce();
+    if (d.float){ P.vx += ax * dt; const k = Math.pow(d.air, dt * 60); P.vx *= k; P.vy *= k; }
+    else { P.vy += d.grav * dt; P.vx += ax * dt; }
+    P.x += P.vx * dt; P.y += P.vy * dt;
+    if (d.walker){ P.rot += P.vr * dt; if (P.vy > 0) P.rot *= Math.pow(.88, dt * 60); }
+    if (P.x < minX()){ P.x = minX(); P.vx = Math.abs(P.vx) * d.bounce; impact(Math.abs(P.vx) / 3000); }
+    if (P.x > maxX()){ P.x = maxX(); P.vx = -Math.abs(P.vx) * d.bounce; impact(Math.abs(P.vx) / 3000); }
+    if (P.y < topY()){ P.y = topY(); P.vy = Math.abs(P.vy) * d.bounce; }
+    if (P.jump && P.vy > 0 && landOnShelf()) {}
+    else {
+      const fl = restY(P.x);
+      if (P.y >= fl){
+        P.y = fl;
+        if (!d.float && !d.walker && P.vy > 280){ const v = P.vy; P.vy = -v * d.bounce; impact(Math.min(.34, v / 4200)); }
+        else landed();
+      }
+    }
+    if (d.float && P.mode === 'fly' && Math.hypot(P.vx, P.vy) < 18){ P.mode = 'rest'; }
+    moving = P.mode === 'fly';
+  } else if (P.mode === 'walk'){
+    const speed = P.pose === 'run' ? 360 : 58;
+    const dir = Math.sign(P.walkTo - P.x) || 1;
+    P.face = dir;
+    P.x += dir * speed * dt;
+    if (P.surf){
+      const r = shelfRect(); if (!r){ fall(); } else { P.surf.off += dir * speed * dt; P.y = r.top + 4; }
+    } else {
+      const fl = restY(P.x);
+      if (fl > P.y + 6){ fall(); }                                   /* walked off the add box on a laptop */
+      else if (fl < P.y - 6){ P.mode = 'fly'; P.vy = -760; P.vx = dir * 160; P.jump = null; }  /* hop up onto it */
+      else P.y = fl;
+    }
+    if ((dir > 0 && P.x >= P.walkTo) || (dir < 0 && P.x <= P.walkTo)){ P.x = P.walkTo; arrived(); }
+    moving = P.mode === 'walk' || P.mode === 'fly';
+  } else if (P.mode === 'cling'){
+    const c = P.cling;
+    P.x += (c.x - P.x) * .14; P.y += (c.y - P.y) * .14; P.rot += (c.rot - P.rot) * .14;
+    if (!c.said && Math.abs(c.x - P.x) < 3){ c.said = true; say(c.text, { mood:'happy', force:true }); }
+    if (Date.now() > c.until){ P.cling = null; P.mode = 'fly'; P.vx = P.x < innerWidth / 2 ? 180 : -180; P.vy = d.float ? 0 : -120; if (d.float){ P.float = { x:homeX(), y:restY(homeX()) }; } }
+    moving = true;
+  } else {
+    /* resting: tilt slides the pet along the add box; a floating ghost drifts back to its spot */
+    if (P.surf){ const r = shelfRect(); if (!r) fall(); }
+    else if (d.float){
+      const target = P.float || { x:P.x, y:clampN(P.y, topY(), restY(P.x)) };
+      P.vx = (P.vx + (target.x - P.x) * 4 * dt + tiltForce() * dt) * Math.pow(.9, dt * 60);
+      P.vy = (P.vy + (target.y - P.y) * 4 * dt) * Math.pow(.9, dt * 60);
+      P.x = clampN(P.x + P.vx * dt, minX(), maxX()); P.y = clampN(P.y + P.vy * dt, topY(), restY(P.x));
+      moving = Math.abs(P.vx) + Math.abs(P.vy) > 2 || Math.abs(target.x - P.x) + Math.abs(target.y - P.y) > 1;
+      if (!moving) P.float = null;
+    } else if (!d.walker){
+      const ax = tiltForce();
+      P.vx = (P.vx + ax * dt) * Math.pow(d.fric, dt * 60);
+      if (Math.abs(P.vx) > 3){
+        P.x += P.vx * dt;
+        if (P.x < minX()){ P.x = minX(); P.vx = Math.abs(P.vx) * d.bounce; }
+        if (P.x > maxX()){ P.x = maxX(); P.vx = -Math.abs(P.vx) * d.bounce; }
+        if (P.kind === 'mochi') P.rot += P.vx * dt * 2.1;                   /* Mochi rolls */
+        moving = true;
+      }
+      const fl = restY(P.x);
+      if (fl > P.y + 6){ fall(); moving = true; } else P.y = fl;
+      if (!moving && Math.abs(P.rot % 360) > .5){ P.rot = P.rot % 360; if (P.rot > 180) P.rot -= 360; if (P.rot < -180) P.rot += 360; P.rot *= .8; moving = true; }
+      if (ax) moving = true;
+    }
+  }
+  /* squash spring */
+  P.vsq += (-P.sq * 190 - P.vsq * 13) * dt;
+  P.sq += P.vsq * dt;
+  if (Math.abs(P.sq) > .002 || Math.abs(P.vsq) > .02) moving = true;
+  paintPet();
+  if (!moving){ P.run = false; P.sq = 0; P.vsq = 0; paintPet(); return; }
+  requestAnimationFrame(petStep);
+}
+function impact(a){ if (a > .02){ P.sq = Math.min(.34, a + .06); P.vsq = 0; } }
+function fall(){ P.surf = null; P.mode = 'fly'; P.vy = Math.max(P.vy, 0); P.jump = null; if (P.def.walker) setPose('stand'); petWake(); }
+function landed(){
+  const d = P.def, hard = P.vy > 900;
+  P.vy = 0; P.mode = 'rest'; P.jump = null;
+  if (d.walker){
+    P.rot = 0; impact(.22);
+    if (P.flung){ P.flung = 0; setPose('sit'); setTimeout(() => { setPose('groom'); say(pickLine('flick', d.lines.flick), { mood:'happy', cooldown:4000 }); schedule(3); }, 450); return; }
+    if (P.walkTo != null){ const to = P.walkTo, g = P.pose === 'run' ? 'run' : 'walk'; P.walkTo = null; return catWalk(to, g); }   /* hopped up or down mid-walk: keep going */
+    setPose('sit'); schedule(rnd(2, 5)); return;
+  }
+  if (d.float){ return; }
+  impact(hard ? .3 : .14);
+  if (P.flung){
+    const big = P.flung > 1800; P.flung = 0;
+    say(pickLine('flick', d.lines.flick), { mood:big ? 'dizzy' : 'wow', cooldown:4000 });
+  }
+}
+
+/* ---- shelves: the cat climbs onto task cards ---- */
+function shelfKey(el){
+  if (el.matches('.task')) return `${el.closest('#today') ? '#today' : '#main'} .task[data-id="${el.dataset.id}"]`;
+  if (el.matches('.acc-head')) return `.acc[data-acc="${el.closest('.acc').dataset.acc}"] .acc-head`;
+  if (el.matches('.gtile')) return el.dataset.id ? `.gtile[data-id="${el.dataset.id}"]` : null;
+  if (el.matches('.banner-g')) return `.banner-g[data-group="${el.dataset.group}"]`;
+  return null;
+}
+function shelfRect(){
+  if (!P.surf) return null;
+  const el = document.querySelector(P.surf.sel);
+  if (!el || el.offsetParent === null) return null;
+  const r = el.getBoundingClientRect();
+  if (r.top < 70 || r.top > floorAt(r.left + P.surf.off) - 50 || r.width < 90) return null;
+  return r;
+}
+function shelves(){
+  return [...document.querySelectorAll('#today .task, #main .task, .acc-head, .gtile, .banner-g')]
+    .filter(el => el.offsetParent !== null && !el.closest('.acc:not(.open) .acc-body'))
+    .map(el => ({ el, r:el.getBoundingClientRect() }))
+    .filter(({ el, r }) => shelfKey(el) && r.top > 110 && r.top < floorAt(r.left + r.width / 2) - 120 && r.width > 140 && r.left >= 0 && r.right <= innerWidth);
+}
+function landOnShelf(){
+  const j = P.jump; if (!j) return false;
+  const el = document.querySelector(j.sel); if (!el){ P.jump = null; return false; }
+  const r = el.getBoundingClientRect();
+  if (P.y >= r.top + 4 && P.x > r.left + 18 && P.x < r.right - 18){
+    P.surf = { sel:j.sel, off:P.x - r.left }; P.y = r.top + 4; P.vy = 0; P.vx = 0; P.jump = null; P.rot = 0;
+    P.mode = 'rest'; impact(.2); setPose('sit'); schedule(rnd(5, 10));
+    return true;
+  }
+  if (P.y > r.top + 30){ P.jump = null; }
+  return false;
+}
+function followShelf(){
+  if (!P.surf || P.mode === 'drag') return;
+  const r = shelfRect();
+  if (!r){ fall(); return; }
+  P.x = r.left + P.surf.off; P.y = r.top + 4; paintPet();
+}
+document.addEventListener('scroll', followShelf, true);
+
+/* ---- the cat's day ---- */
+function schedule(secs){ clearTimeout(P.catT); if (P.kind === 'miso') P.catT = setTimeout(catNext, secs * 1000); }
+function catDo(pose, secs, mood){ P.mode = 'rest'; P.walkTo = null; P.zoom = 0; setPose(pose); setMood(mood || (pose === 'loaf' ? 'sleepy' : baseMood())); schedule(secs); }
+function catWalk(tx, gait = 'walk'){
+  const lo = P.surf ? null : minX(), hi = P.surf ? null : maxX();
+  if (P.surf){ const r = shelfRect(); if (!r) return fall(); tx = clampN(tx, r.left + 22, r.right - 22); }
+  else tx = clampN(tx, lo, hi);
+  if (Math.abs(tx - P.x) < 12) return catDo('sit', rnd(3, 6));
+  P.walkTo = tx; P.face = tx > P.x ? 1 : -1; P.mode = 'walk'; setPose(gait); petWake();
+}
+function arrived(){
+  if (P.zoom > 0){ P.zoom--; return catWalk(P.x > innerWidth / 2 ? minX() + rnd(0, 40) : maxX() - rnd(0, 40), 'run'); }
+  P.walkTo = null;
+  catDo(Math.random() < .7 ? 'sit' : 'stand', rnd(2, 6));
+}
+function catJump(){
+  const opts = shelves(); if (!opts.length) return false;
+  const { el, r } = opts[Math.floor(Math.random() * opts.length)];
+  const sel = shelfKey(el); if (!sel) return false;
+  const frac = rnd(.2, .8);
+  P.face = r.left + r.width * frac > P.x ? 1 : -1; P.mode = 'rest'; setPose('crouch');
+  /* wiggle, then leap; the card is looked up again in case the list moved meanwhile */
+  setTimeout(() => {
+    if (P.kind !== 'miso' || P.mode !== 'rest' || P.pose !== 'crouch') return;
+    const c = document.querySelector(sel); if (!c) return catDo('sit', 4);
+    const q = c.getBoundingClientRect();
+    const tx = clampN(q.left + q.width * frac, minX(), maxX()), ty = q.top + 4;
+    const g = P.def.grav, t = clampN(Math.sqrt(Math.max(0, P.y - ty)) / 26, .45, .8);
+    P.vx = (tx - P.x) / t; P.vy = (ty - P.y - .5 * g * t * t) / t;
+    P.surf = null; P.jump = { sel }; P.vr = 0; P.mode = 'fly'; setPose('stand'); petWake();
+  }, 520);
+  return true;
+}
+function catHopDown(){ P.surf = null; P.mode = 'fly'; P.vx = P.face * 150; P.vy = -260; P.jump = null; setPose('stand'); petWake(); }
+function catNext(){
+  if (P.kind !== 'miso' || P.mode === 'drag' || P.mode === 'fly' || P.menu || document.hidden) return schedule(4);
+  if (reduceMotion()) return catDo('sit', 30);
+  const r = Math.random();
+  if (P.surf && r < .35) return catHopDown();
+  if (isNight() && r < .45) return catDo('loaf', rnd(25, 45));
+  if (r < .34) return catWalk(rnd(minX(), maxX()), 'walk');
+  if (r < .50) return catDo('sit', rnd(4, 8));
+  if (r < .58) return catDo('groom', rnd(2.5, 4), 'sleepy');
+  if (r < .64) return catDo('stretch', 1.6);
+  if (r < .69) return catDo('yawn', 1.4);
+  if (r < .80) return catDo('loaf', rnd(12, 24));
+  if (r < .96 && !P.surf && catJump()) return;
+  if (r < .99 && !P.surf){ P.zoom = 2; return catWalk(P.x > innerWidth / 2 ? minX() : maxX(), 'run'); }
+  catDo('sit', 5);
+}
+function pounce(tx, ty){
+  if (P.kind !== 'miso' || P.mode !== 'rest' || P.pose === 'loaf' || reduceMotion()) return;
+  P.face = tx > P.x ? 1 : -1; setPose('crouch'); clearTimeout(P.catT);
+  setTimeout(() => {
+    if (P.mode !== 'rest' || P.pose !== 'crouch') return;
+    const t = .5, tyc = Math.min(ty + 30, floorAt(tx));
+    P.surf = null; P.vx = (clampN(tx, minX(), maxX()) - P.x) / t; P.vy = (tyc - P.y - .5 * P.def.grav * t * t) / t; P.vr = 0;
+    P.mode = 'fly'; setPose('stand'); petWake();
+  }, 700);
+}
+
+/* ---- reactions ---- */
+function celebrate(big){
+  if (!P.kind || reduceMotion()) return;
+  const d = P.def, b = $('petHit');
+  if (P.kind === 'mochi'){ P.surf = null; P.mode = 'fly'; P.vy = big ? -980 : -560; P.vx = 0; petWake(); if (big) b.animate([{ transform:'rotate(0)' }, { transform:'rotate(360deg)' }], { duration:700, easing:'cubic-bezier(.3,.7,.4,1)' }); }
+  else if (P.kind === 'boo'){ trick(big ? 'loop' : 'bounce'); }
+  else if (P.kind === 'sprout'){ flash(big ? 'sway-fast' : 'shake', big ? 2200 : 800); if (P.mode === 'rest' && !P.surf){ P.mode = 'fly'; P.vy = big ? -520 : -260; petWake(); } }
+  else if (P.kind === 'miso'){ if (big){ P.zoom = 2; catWalk(P.x > innerWidth / 2 ? minX() : maxX(), 'run'); } else if (P.mode === 'rest'){ setPose('sit'); setMood('happy', 1800); } }
+  void d;
+}
+function petDone(t, g){
+  if (!P.kind) return;
+  const now = Date.now(), L = P.def.lines;
+  P.dones = P.dones.filter(x => now - x < 90000).concat(now);
+  const t0 = today();
+  const todayClear = t.due && t.due <= t0 && !db.tasks.some(x => !x.done && x.due && x.due <= t0);
+  if (g){ celebrate(true); say(pickLine('group', L.group(g.name)), { mood:'love', hold:3200, force:true }); return; }
+  if (todayClear){ celebrate(true); say(pickLine('today', L.today), { mood:'wow', hold:3000, force:true }); return; }
+  celebrate(false);
+  if (P.dones.length >= 3 && P.dones.length % 3 === 0 && say(pickLine('streak', L.streak), { mood:'wow', cooldown:4000 })) return;
+  if (!say(pickLine('done', L.done), { mood:'wow' })) heart();
+}
+function petAdded(){
+  if (!P.kind || reduceMotion()) return;
+  if (P.kind !== 'miso' && P.mode === 'rest') $('petHit').animate([{ transform:'scale(1,1)' }, { transform:'scale(1.12,.88)', offset:.35 }, { transform:'scale(.95,1.06)', offset:.7 }, { transform:'scale(1,1)' }], { duration:420, easing:'cubic-bezier(.3,.7,.4,1)' });
+  if (Math.random() < .3) say(pickLine('added', P.def.lines.added), { mood:'happy', cooldown:20000 });
+}
+function petTap(){
+  if (!P.kind) return;
+  P.lastAct = Date.now();
+  if (touchy() && db.pet.tilt && !T.got) askTilt();
+  const now = Date.now(), L = P.def.lines;
+  P.taps = P.taps.filter(x => now - x < 2500).concat(now);
+  if (P.taps.length >= 5){
+    P.taps = [];
+    if (P.kind === 'miso'){ catDo('loaf', 8, 'sleepy'); say(L.spam, { mood:'sleepy', force:true }); }
+    else { dizzyShake(); say(L.spam, { mood:'dizzy', hold:2400, force:true }); }
+    return;
+  }
+  if (P.kind === 'mochi'){ if (!reduceMotion() && P.mode === 'rest' && !P.surf){ P.mode = 'fly'; P.vy = -520; petWake(); } say(pickLine('tap', L.tap), { mood:'wink', hold:1400, force:true }); }
+  else if (P.kind === 'boo'){ trick('bounce'); say(pickLine('tap', L.tap), { mood:'shy', hold:1600, force:true }); }
+  else if (P.kind === 'sprout'){ flash('shake', 800); say(pickLine('tap', L.tap), { mood:'happy', hold:1400, force:true }); }
+  else {
+    if (P.pose === 'loaf'){ catDo('stretch', 1.4); setTimeout(() => catDo('sit', 5), 1400); say('Mrrp? (I was sleeping.)', { mood:'happy', force:true }); return; }
+    clearTimeout(P.catT); P.mode = 'rest'; setPose('sit'); flash('purr', 2200); heart(3);
+    say(pickLine('tap', L.tap), { mood:'happy', hold:2200, force:true }); schedule(6);
+  }
+}
+function dizzyShake(){
+  if (reduceMotion()) return;
+  $('petHit').animate([{ transform:'rotate(0)' }, { transform:'rotate(-18deg)' }, { transform:'rotate(16deg)' }, { transform:'rotate(-10deg)' }, { transform:'rotate(6deg)' }, { transform:'rotate(0)' }], { duration:900, easing:'ease-out' });
+}
+function petShake(){
+  if (!P.kind) return;
+  const L = P.def.lines;
+  if (!reduceMotion() && P.mode !== 'drag'){ P.surf = null; P.mode = 'fly'; P.vx = rnd(-500, 500); P.vy = P.def.float ? rnd(-300, -150) : -rnd(700, 1000); P.vr = rnd(-720, 720); P.flung = 1900; petWake(); }
+  say(L.shake, { mood:'dizzy', hold:2400, force:true });
+}
+
+/* ---- tricks ---- */
+function trick(id){
+  if (!P.kind) return;
+  const b = $('petHit'), rm = reduceMotion(), L = P.def.lines;
+  const anim = (frames, ms) => { if (!rm) b.animate(frames, { duration:ms, easing:'cubic-bezier(.3,.7,.4,1)' }); };
+  switch (id){
+    case 'hop': if (!rm){ P.surf = null; P.mode = 'fly'; P.vy = -1050; P.vx = 0; petWake(); } setMood('wow', 1400); break;
+    case 'spin': anim([{ transform:'rotate(0) scale(1)' }, { transform:'rotate(180deg) scale(1.15)' }, { transform:'rotate(360deg) scale(1)' }], 700); setMood('wink', 1200); break;
+    case 'dance': anim([{ transform:'rotate(0)' }, { transform:'rotate(-14deg) translateX(-4px)' }, { transform:'rotate(14deg) translateX(4px)' }, { transform:'rotate(-14deg) translateX(-4px)' }, { transform:'rotate(14deg) translateX(4px)' }, { transform:'rotate(0)' }], 1300); setMood('happy', 1500); say('Wiggle wiggle!', { force:true, mood:'happy' }); break;
+    case 'flop': P.sq = .45; P.vsq = 0; setMood('sleepy', 1800); petWake(); say('*flop*', { force:true, mood:'sleepy' }); break;
+    case 'bounce': anim([{ transform:'translateY(0)' }, { transform:'translateY(-22px) scale(1.06)' }, { transform:'translateY(0)' }], 520); break;
+    case 'loop': anim([{ transform:'translate(0,0) rotate(0)' }, { transform:'translate(28px,-30px) rotate(90deg)' }, { transform:'translate(0,-60px) rotate(180deg)' }, { transform:'translate(-28px,-30px) rotate(270deg)' }, { transform:'translate(0,0) rotate(360deg)' }], 1200); setMood('love', 1600); break;
+    case 'hide': petEl().classList.add('hiding'); setMood('shy'); setTimeout(() => { petEl().classList.remove('hiding'); say('...boo!', { mood:'scare', force:true, hold:1200 }); setTimeout(() => setMood('shy', 1600), 1300); }, 3000); break;
+    case 'scare': anim([{ transform:'scale(1)' }, { transform:'scale(1.35)', offset:.3 }, { transform:'scale(1.3)', offset:.7 }, { transform:'scale(1)' }], 1100); say('BOO!', { mood:'scare', hold:900, force:true }); setTimeout(() => say('...sorry. was that too much?', { mood:'shy', force:true }), 1300); break;
+    case 'glow': flash('glow', 2600); setMood('love', 2600); say('*glows softly*', { mood:'love', force:true }); break;
+    case 'sway': flash('sway-fast', 2400); setMood('happy', 2400); say('Swaying in the breeze.', { mood:'happy', force:true }); break;
+    case 'stretch':
+      if (P.kind === 'miso'){ catDo('stretch', 1.6); setTimeout(() => catDo('sit', 5), 1600); say('*big stretch*', { mood:'sleepy', force:true }); }
+      else { anim([{ transform:'scaleY(1)' }, { transform:'scale(.9,1.3)', offset:.45 }, { transform:'scale(1.08,.92)', offset:.8 }, { transform:'scaleY(1)' }], 1100); say('Reaching for the sun.', { mood:'happy', force:true }); }
+      break;
+    case 'sun': flash('sunny', 3200); setMood('sleepy', 3200); say('Ahh. Sunshine.', { mood:'sleepy', force:true }); break;
+    case 'shake':
+      flash('shake', 800);
+      if (!rm) for (let i = 0; i < 4; i++){
+        const s = document.createElement('i'); s.className = 'leafbit';
+        s.style.left = `${P.x + rnd(-18, 18)}px`; s.style.top = `${P.y - P.def.h + rnd(0, 20)}px`;
+        document.body.appendChild(s);
+        s.animate([{ transform:'translate(0,0) rotate(0)', opacity:1 }, { transform:`translate(${rnd(-40, 40)}px,${rnd(50, 80)}px) rotate(${rnd(-200, 200)}deg)`, opacity:0 }], { duration:1200 + i * 100, easing:'ease-in' }).onfinish = () => s.remove();
+      }
+      say('*rustle*', { mood:'happy', force:true }); break;
+    case 'purr': petTap(); break;
+    case 'zoomies': P.zoom = 3; catWalk(P.x > innerWidth / 2 ? minX() : maxX(), 'run'); say('*ZOOMIES*', { mood:'wow', force:true }); break;
+    case 'loaf': catDo('loaf', 30, 'sleepy'); break;
+  }
+  P.lastAct = Date.now();
+  void L;
+}
+
+/* ---- menu (press and hold, or right-click) ---- */
+function openPetMenu(){
+  if (!P.kind) return;
+  hushBubble();
+  const m = $('petMenu');
+  m.innerHTML = `<div class="ttl">${esc(P.def.name)}</div>`
+    + P.def.tricks.map(([id, l]) => `<button type="button" class="chip" role="menuitem" data-trick="${id}">${esc(l)}</button>`).join('')
+    + `<button type="button" class="chip soft" role="menuitem" data-trick="change">Change pet</button><button type="button" class="chip soft" role="menuitem" data-trick="nap">Nap</button>`;
+  m.hidden = false; P.menu = true;
+  const w = m.offsetWidth, h = m.offsetHeight;
+  let top = P.y - P.def.h - h - 12; if (top < 8) top = P.y + 10;
+  m.style.left = `${clampN(P.x - w / 2, 8, innerWidth - w - 8)}px`; m.style.top = `${clampN(top, 8, innerHeight - h - 8)}px`;
+  m.querySelector('button').focus({ preventScroll:true });
+}
+function closePetMenu(){ $('petMenu').hidden = true; P.menu = false; }
+$('petMenu').addEventListener('click', e => {
+  const b = e.target.closest('[data-trick]'); if (!b) return;
+  const id = b.dataset.trick; closePetMenu();
+  if (id === 'change') openPetPicker();
+  else if (id === 'nap') napPet();
+  else trick(id);
+});
+document.addEventListener('pointerdown', e => { if (P.menu && !e.target.closest('#petMenu, #petHit')) closePetMenu(); }, true);
+document.addEventListener('keydown', e => { if (P.menu && e.key === 'Escape'){ closePetMenu(); $('petHit').focus(); } });
+
+/* ---- touch: drag, flick, tap, press and hold ---- */
+const petHitEl = $('petHit');
+petHitEl.addEventListener('pointerdown', e => {
+  if (!P.kind || e.button > 0) return;
+  e.preventDefault();
+  try { petHitEl.setPointerCapture(e.pointerId); } catch (_) {}
+  const now = performance.now();
+  P.press = { id:e.pointerId, x0:e.clientX, y0:e.clientY, ox:P.x - e.clientX, oy:P.y - e.clientY, moved:false, held:false, samples:[[now, e.clientX, e.clientY]] };
+  P.press.lp = setTimeout(() => { if (P.press && !P.press.moved){ P.press.held = true; openPetMenu(); } }, 550);
+  P.lastAct = Date.now();
+});
+petHitEl.addEventListener('pointermove', e => {
+  const pr = P.press; if (!pr || pr.id !== e.pointerId) return;
+  const now = performance.now();
+  pr.samples.push([now, e.clientX, e.clientY]); if (pr.samples.length > 8) pr.samples.shift();
+  if (!pr.moved && Math.hypot(e.clientX - pr.x0, e.clientY - pr.y0) > 7){
+    pr.moved = true; clearTimeout(pr.lp); closePetMenu(); clearTimeout(P.catT);
+    P.surf = null; P.jump = null; P.cling = null; P.zoom = 0; P.walkTo = null; P.mode = 'drag'; P.rot = 0;
+    if (P.def.walker) setPose('dangle'); else setMood(P.kind === 'boo' ? 'shy' : P.kind === 'sprout' ? 'worried' : 'wow');
+    if (Math.random() < .35) say(pickLine('held', P.def.lines.held), { cooldown:5000, mood:P.mood });
+  }
+  if (pr.moved){ P.drag = { tx:e.clientX + pr.ox, ty:e.clientY + pr.oy }; petWake(); }
+});
+function endPress(e, cancelled){
+  const pr = P.press; if (!pr || pr.id !== e.pointerId) return;
+  clearTimeout(pr.lp); P.press = null;
+  if (pr.moved){
+    const now = performance.now(), s = pr.samples.filter(q => now - q[0] < 110);
+    const a = s[0] || pr.samples[0], z = s[s.length - 1] || pr.samples[pr.samples.length - 1];
+    const dt = Math.max(16, z[0] - a[0]) / 1000;
+    let vx = (z[1] - a[1]) / dt, vy = (z[2] - a[2]) / dt;
+    const sp = Math.hypot(vx, vy), cap = 3200;
+    if (sp > cap){ vx *= cap / sp; vy *= cap / sp; }
+    P.mode = 'fly'; P.vx = reduceMotion() ? 0 : vx; P.vy = reduceMotion() ? 0 : vy;
+    P.vr = P.def.walker ? clampN(vx, -900, 900) * .8 : 0;
+    P.flung = sp > 800 ? sp : 0;
+    if (P.def.walker) setPose('stand');
+    if (P.def.float){ P.float = null; }
+    setMood(baseMood());
+    petWake();
+    if (P.def.walker) schedule(6);
+  } else if (!pr.held && !cancelled){ petTap(); }
+}
+petHitEl.addEventListener('pointerup', e => endPress(e, false));
+petHitEl.addEventListener('pointercancel', e => endPress(e, true));
+petHitEl.addEventListener('contextmenu', e => { e.preventDefault(); openPetMenu(); });
+petHitEl.addEventListener('click', e => { if (e.detail === 0) petTap(); });   /* keyboard Enter or Space */
+petHitEl.addEventListener('keydown', e => {
+  if (!P.kind) return;
+  if (e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10') || e.key === 'm'){ e.preventDefault(); openPetMenu(); return; }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowRight'){
+    e.preventDefault(); const dir = e.key === 'ArrowLeft' ? -1 : 1;
+    if (P.def.walker){ P.surf ? catWalk(P.x + dir * 70) : catWalk(P.x + dir * 90); return; }
+    P.surf = null; P.mode = 'fly'; P.vx = reduceMotion() ? 0 : dir * 320; P.vy = P.def.float ? 0 : -420; if (reduceMotion()) P.x = clampN(P.x + dir * 90, minX(), maxX()); petWake();
+  }
+});
+$('petSay').addEventListener('click', hushBubble);
+
+/* the cat chases the mouse, and a tap on empty space when on a phone */
+document.addEventListener('pointermove', e => {
+  if (e.pointerType !== 'mouse') return;
+  const m = $('petHit').getBoundingClientRect();
+  const cx = m.width ? m.left + m.width / 2 : innerWidth / 2, cy = m.height ? m.top + m.height / 2 : innerHeight / 2;
+  aim((e.clientX - cx) / 380, (e.clientY - cy) / 380);
+  if (P.kind === 'miso' && P.mode === 'rest' && !P.surf && ['sit', 'stand'].includes(P.pose) && Date.now() > (P.nextPounce || 0)){
+    const dist = Math.hypot(e.clientX - P.x, e.clientY - (P.y - 30));
+    if (dist < 170 && dist > 50){ P.nextPounce = Date.now() + 7000; if (Math.random() < .55) pounce(e.clientX, e.clientY); }
+  }
+}, { passive:true });
+document.addEventListener('pointerleave', () => aim(0, 0));
+document.addEventListener('pointerdown', e => {
+  if (e.pointerType === 'mouse' || P.kind !== 'miso' || e.target.closest('button,input,textarea,a,label,dialog,.task,.acc,.gtile,.dock,.pet')) return;
+  if (Math.hypot(e.clientX - P.x, e.clientY - P.y) < 230 && Date.now() > (P.nextPounce || 0)){ P.nextPounce = Date.now() + 4000; pounce(e.clientX, e.clientY); }
+}, { passive:true });
+
+/* ---- tilt: blobs lean and look; resting pets slide ---- */
 const T = { x:0, y:0, vx:0, vy:0, tx:0, ty:0, run:false, base:null, got:false, listening:false, els:[] };
 function tiltEls(){ T.els = [...document.querySelectorAll('.blob')]; paintTilt(0); }
 function paintTilt(sq){
   for (const el of T.els){ el.style.setProperty('--tx', T.x.toFixed(3)); el.style.setProperty('--ty', T.y.toFixed(3)); el.style.setProperty('--sq', sq.toFixed(3)); }
 }
 function aim(x, y){
-  T.tx = Math.max(-1, Math.min(1, x)); T.ty = Math.max(-1, Math.min(1, y));
+  T.tx = clampN(x, -1, 1); T.ty = clampN(y, -1, 1);
   if (!T.run && !reduceMotion() && !document.hidden){ T.run = true; requestAnimationFrame(tiltStep); }
 }
 function tiltStep(){
   T.vx = (T.vx + (T.tx - T.x) * .08) * .8; T.vy = (T.vy + (T.ty - T.y) * .08) * .8;
   T.x += T.vx; T.y += T.vy;
   paintTilt(Math.min(Math.hypot(T.vx, T.vy) * 3.2, .16));
+  if (P.kind && tiltForce() && P.mode === 'rest') petWake();
   if (Math.abs(T.vx) + Math.abs(T.vy) + Math.abs(T.tx - T.x) + Math.abs(T.ty - T.y) < .002){ T.run = false; paintTilt(0); return; }
   requestAnimationFrame(tiltStep);
 }
 function onOrient(e){
-  if (e.gamma == null || !db.mochi.tilt) return;
-  if (!T.got){ T.got = true; if (M.askedTilt){ M.askedTilt = false; setTimeout(() => speak('Wheee! Tilt me around.', { mood:'wow', force:true }), 300); } }
+  if (e.gamma == null || !db.pet.tilt) return;
+  if (!T.got){ T.got = true; if (P.askedTilt){ P.askedTilt = false; setTimeout(() => say('Wheee! Tilt your phone and watch me go.', { mood:'wow', force:true }), 300); } }
   const angle = (screen.orientation && screen.orientation.angle) || 0;
   let lr = e.gamma, fb = e.beta;
   if (angle === 90){ lr = e.beta; fb = -e.gamma; } else if (angle === 270 || angle === -90){ lr = -e.beta; fb = e.gamma; }
@@ -1426,12 +2084,12 @@ function onOrient(e){
 }
 let shakeHits = 0, lastShake = 0;
 function onMotion(e){
-  const a = e.accelerationIncludingGravity; if (!a || !db.mochi.tilt) return;
+  const a = e.accelerationIncludingGravity; if (!a || !db.pet.tilt) return;
   const m = Math.hypot(a.x || 0, a.y || 0, a.z || 0);
   if (Math.abs(m - 9.8) > 13){
     const now = Date.now();
     shakeHits = now - lastShake < 700 ? shakeHits + 1 : 1; lastShake = now;
-    if (shakeHits >= 4){ shakeHits = 0; dizzy('Whoa! Earthquake?!'); }
+    if (shakeHits >= 4){ shakeHits = 0; petShake(); }
   }
 }
 function listenTilt(){
@@ -1443,7 +2101,7 @@ function listenTilt(){
 async function askTilt(){
   try {
     if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function'){
-      M.askedTilt = true;
+      P.askedTilt = true;
       const r = await DeviceOrientationEvent.requestPermission();
       if (r !== 'granted') return false;
       if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function'){ try { await DeviceMotionEvent.requestPermission(); } catch (_) {} }
@@ -1451,16 +2109,6 @@ async function askTilt(){
     listenTilt(); return true;
   } catch (_) { return false; }
 }
-/* mouse users: blobs look at the pointer */
-document.addEventListener('pointermove', e => {
-  if (e.pointerType !== 'mouse' || !T.els.length) return;
-  const m = $('mochiBtn').getBoundingClientRect();
-  const cx = m.width ? m.left + m.width / 2 : innerWidth / 2, cy = m.height ? m.top + m.height / 2 : innerHeight / 2;
-  aim((e.clientX - cx) / 380, (e.clientY - cy) / 380);
-}, { passive:true });
-document.addEventListener('pointerleave', () => aim(0, 0));
-
-/* blinking, now and then */
 (function blinkLoop(){
   setTimeout(() => {
     if (!document.hidden && !reduceMotion()){
@@ -1471,29 +2119,147 @@ document.addEventListener('pointerleave', () => aim(0, 0));
   }, 2600 + Math.random() * 3400);
 })();
 
-/* Mochi's button: tap to chat, press and hold to nap */
-$('mochiBtn').addEventListener('pointerdown', () => { M.pressT = setTimeout(() => { M.pressT = 'fired'; napMochi(); }, 700); });
-['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => $('mochiBtn').addEventListener(ev, () => { if (M.pressT !== 'fired') clearTimeout(M.pressT); }));
-$('mochiBtn').addEventListener('click', e => { if (M.pressT === 'fired'){ M.pressT = null; e.preventDefault(); return; } mochiTap(); });
-$('mochiBtn').addEventListener('contextmenu', e => e.preventDefault());
-$('mochiSay').addEventListener('click', () => $('mochiSay').classList.remove('show'));
-
-/* settings switches */
-function paintSwitches(){
-  $('swMochi').setAttribute('aria-checked', String(db.mochi.on));
-  $('swTilt').setAttribute('aria-checked', String(db.mochi.tilt));
-  $('rowTilt').hidden = !touchy() || !db.mochi.on;
+/* ---- idle life for Mochi, Boo and Sprout; now-and-then lines for everyone ---- */
+function idleMove(){
+  clearTimeout(P.idleT);
+  const next = { mochi:[9, 22], boo:[10, 24], sprout:[14, 30] }[P.kind];
+  if (!next) return;
+  P.idleT = setTimeout(idleMove, rnd(next[0], next[1]) * 1000);
+  if (document.hidden || busy() || P.mode !== 'rest' || P.menu || reduceMotion() || P.surf) return;
+  if (P.kind === 'mochi'){
+    if (Math.random() < .6){ P.mode = 'fly'; P.vy = -380; P.vx = 0; }
+    else { const tx = clampN(P.x + rnd(-140, 140), minX(), maxX()); P.mode = 'fly'; P.vy = -520; P.vx = (tx - P.x) / .45; }
+    petWake();
+  } else if (P.kind === 'boo'){
+    P.float = { x:clampN(homeX() + rnd(-90, 30), minX(), maxX()), y:clampN(restY(P.x) - rnd(0, 60), topY(), restY(P.x)) }; petWake();
+  } else if (P.kind === 'sprout'){
+    const r = Math.random();
+    if (r < .4) flash('sway-fast', 1800); else if (r < .7) trick('stretch'); else setMood('sleepy', 1800);
+    hushBubble();
+  }
 }
-$('swMochi').addEventListener('click', () => { db.mochi.on = !db.mochi.on; M.napped = false; save(); paintSwitches(); syncMochi(); });
-$('swTilt').addEventListener('click', async () => {
-  db.mochi.tilt = !db.mochi.tilt; save(); paintSwitches();
-  if (db.mochi.tilt) askTilt(); else aim(0, 0);
+function idleTalk(){
+  if (!P.kind || document.hidden || busy() || P.menu || P.mode === 'drag') return;
+  const now = Date.now();
+  if (now - P.lastAct < 45000 || now - P.lastIdle < 180000 || now - P.lastSpoke < 30000) return;
+  if (Math.random() < .5) return;
+  P.lastIdle = now; P.lastSpoke = now;
+  const line = pickLine('idle', P.def.lines.idle);
+  if ((P.kind === 'mochi' || P.kind === 'boo') && !reduceMotion() && !P.surf){
+    const side = P.x > innerWidth / 2 ? 1 : -1;
+    P.cling = { x:side > 0 ? innerWidth - P.def.w / 2 + 10 : P.def.w / 2 - 10, y:innerHeight * rnd(.36, .52), rot:side > 0 ? -62 : 62, until:Date.now() + Math.min(5200, Math.max(3200, 1800 + line.length * 55)), text:line, said:false };
+    P.mode = 'cling'; petWake();
+  } else say(line, { mood:'happy', force:true });
+}
+function petGreet(){
+  if (!P.kind || db.pet.greeted === today()) return;
+  const L = P.def.lines, h = new Date().getHours(), t0 = today(), open = db.tasks.filter(t => !t.done);
+  const late = open.filter(t => t.due && t.due < t0).length, due = open.filter(t => t.due === t0).length;
+  let line, mood = 'happy';
+  if (isNight()){ line = L.night; mood = 'sleepy'; }
+  else {
+    line = L.hello[h < 12 ? 0 : h < 17 ? 1 : 2];
+    const quiet = P.kind === 'boo' ? s => s.toLowerCase() : s => s;
+    if (!db.tasks.length) line += quiet(' Add your first task below.');
+    else if (late) line += quiet(` ${plural(late, 'thing')} slipped a little. No stress, one at a time.`);
+    else if (due) line += quiet(` ${plural(due, 'thing')} for today. You've got this.`);
+    else line += quiet(' Nothing due today.');
+  }
+  if (say(line, { mood, hold:3400, force:true })){ db.pet.greeted = t0; save(); }
+}
+
+/* ---- choosing, spawning, napping ---- */
+function spawnPet(kind, { drop = false } = {}){
+  clearTimeout(P.catT); clearTimeout(P.idleT); closePetMenu(); hushBubble();
+  const el = petEl();
+  if (!kind || kind === 'none' || !PETS[kind]){ P.kind = null; P.def = null; el.hidden = true; placeToast(); return; }
+  P.kind = kind; P.def = PETS[kind];
+  Object.assign(P, { vx:0, vy:0, rot:0, vr:0, sq:0, vsq:0, face:1, surf:null, jump:null, cling:null, float:null, zoom:0, walkTo:null, mood:baseMood(), pose:kind === 'miso' ? 'sit' : 'stand' });
+  el.hidden = false;
+  lastW = innerWidth;
+  P.x = homeX(); P.y = drop && !reduceMotion() ? -P.def.h : restY(P.x);
+  P.mode = drop && !reduceMotion() ? 'fly' : 'rest';
+  if (kind === 'boo' && drop && !reduceMotion()){ P.mode = 'rest'; P.float = { x:P.x, y:restY(P.x) }; }   /* a ghost glides down instead of dropping */
+  syncSprout(false);
+  drawPet(); paintPet(); placeToast();
+  if (P.mode === 'fly' || P.float) petWake();
+  if (kind === 'miso') schedule(rnd(2, 4)); else idleMove();
+}
+function choosePet(kind){
+  const prev = db.pet.kind;
+  db.pet.kind = kind; save();
+  spawnPet(kind, { drop:true });
+  paintPetSettings();
+  if (kind !== 'none' && kind !== prev) setTimeout(() => say(PETS[kind].lines.intro, { mood:'wow', hold:3200, force:true }), reduceMotion() ? 50 : 700);
+}
+function napPet(){
+  const prev = db.pet.kind, name = P.def ? P.def.name : 'Your pet';
+  db.pet.kind = 'none'; save(); spawnPet('none'); paintPetSettings();
+  toast(`${name} is napping. Pick a pet again in Settings.`, () => { db.pet.kind = prev; save(); spawnPet(prev, { drop:true }); paintPetSettings(); });
+}
+function syncSprout(redraw = true){
+  if (P.kind !== 'sprout') return;
+  const t0 = today();
+  const doneToday = db.tasks.filter(t => t.done && t.doneAt && iso(new Date(t.doneAt)) === t0).length;
+  const leaves = Math.min(5, doneToday);
+  const bloom = doneToday > 0 && !db.tasks.some(t => !t.done && t.due && t.due <= t0);
+  if (leaves !== P.leaves || bloom !== P.bloom){ P.freshLeaf = leaves > P.leaves || (bloom && !P.bloom); P.leaves = leaves; P.bloom = bloom; if (redraw) drawPet(); }
+}
+/* after every redraw of the page: keep the pet on its card, grow Sprout, refresh blob list */
+function syncPet(){
+  if (!P.kind) return;
+  syncSprout();
+  if (P.surf && !shelfRect()) fall();
+  else if (P.surf) followShelf();
+  else if (P.mode === 'rest'){ const fl = restY(P.x); if (Math.abs(fl - P.y) > 2){ if (fl > P.y) fall(); else { P.y = fl; paintPet(); } } }
+}
+let lastW = innerWidth;
+function petReflow(){
+  if (!P.kind || innerWidth < 200) return;
+  if (lastW < 200){ P.x = homeX(); P.y = restY(P.x); P.mode = P.mode === 'drag' ? 'drag' : 'rest'; P.surf = null; }   /* it was placed while the page had no size */
+  else if (!P.surf && innerWidth !== lastW) P.x *= innerWidth / lastW;   /* keep its place when the window or phone turns */
+  lastW = innerWidth;
+  P.x = clampN(P.x, minX(), maxX());
+  syncPet(); paintPet();
+}
+
+/* ---- settings and the picker ---- */
+function paintPetSettings(){
+  const k = db.pet.kind, d = PETS[k];
+  $('petMini').innerHTML = d ? d.preview() : '';
+  $('petName').textContent = d ? d.name : 'No pet';
+  $('petBlurb').textContent = d ? d.blurb : 'Your pet is napping. Pick one to bring it back.';
+  $('swTilt').setAttribute('aria-checked', String(db.pet.tilt));
+  $('rowTilt').hidden = !touchy() || !d;
+  tiltEls();
+}
+function openPetPicker(){
+  const cur = db.pet.kind;
+  $('petCards').innerHTML = Object.entries(PETS).map(([k, d]) => `<button type="button" class="petcard" data-pet="${k}" aria-pressed="${cur === k}">
+      ${cur === k ? `<span class="tickmark">${icon.tick}</span>` : ''}
+      <span class="art">${d.preview()}</span><b>${esc(d.name)}</b><small>${esc(d.blurb)}</small></button>`).join('');
+  tiltEls();
+  if (!$('petSheet').open) $('petSheet').showModal();
+}
+$('petCards').addEventListener('click', e => {
+  const b = e.target.closest('[data-pet]'); if (!b) return;
+  closeSheet($('petSheet'));
+  if ($('dataSheet').open) closeSheet($('dataSheet'));
+  setTimeout(() => choosePet(b.dataset.pet), 200);
+});
+$('petNone').addEventListener('click', () => { closeSheet($('petSheet')); choosePet('none'); });
+$('petClose').addEventListener('click', () => closeSheet($('petSheet')));
+$('petChange').addEventListener('click', openPetPicker);
+$('swTilt').addEventListener('click', () => {
+  db.pet.tilt = !db.pet.tilt; save(); paintPetSettings();
+  if (db.pet.tilt) askTilt(); else aim(0, 0);
 });
 
-['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, () => { M.lastAct = Date.now(); }, { passive:true }));
-setInterval(mochiIdle, 12000);
-addEventListener('resize', placeMochi);
-if (window.ResizeObserver) new ResizeObserver(placeMochi).observe($('addForm'));
+['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, () => { P.lastAct = Date.now(); }, { passive:true }));
+setInterval(idleTalk, 12000);
+addEventListener('resize', petReflow);
+if (window.ResizeObserver) new ResizeObserver(petReflow).observe($('addForm'));
+document.addEventListener('visibilitychange', () => { if (!document.hidden) petWake(); });
 
 /* ---------- wiring ---------- */
 document.addEventListener('click', e => {
@@ -1538,10 +2304,10 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && ui.todayOpen){ setAcc(null); return; }
   if (e.key === 'Escape' && ui.group) closeGroup();
 });
-/* tapping anywhere outside an open group folds it; the add box, pop-ups and Mochi don't count */
+/* tapping anywhere outside an open group folds it; the add box, pop-ups and the pet don't count */
 document.addEventListener('pointerdown', e => {
   if (!ui.todayOpen) return;
-  if (e.target.closest(`.acc[data-acc="${ui.todayOpen}"], .dock, dialog, .toast, .mochi`)) return;
+  if (e.target.closest(`.acc[data-acc="${ui.todayOpen}"], .dock, dialog, .toast, .pet, .petmenu, .say`)) return;
   setAcc(null);
 }, true);
 $('addForm').addEventListener('submit', addTask);
@@ -1570,12 +2336,11 @@ document.querySelectorAll('[data-icon]').forEach(el => {
 });
 if (wide()) ui.tab = 'groups';
 checkPersist();
-M.mood = baseMood();
-drawMochi();
 render();
-paintSwitches();
-if (touchy() && db.mochi.tilt) listenTilt();
-setTimeout(mochiGreet, 1400);
+spawnPet(db.pet.kind);
+paintPetSettings();
+if (touchy() && db.pet.tilt) listenTilt();
+setTimeout(petGreet, 1400);
 /* offline support once hosted; skipped when opened as a local file */
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>

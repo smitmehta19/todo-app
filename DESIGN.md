@@ -58,29 +58,29 @@ Radii: tiles 24–30px, chips 14px, fields 18px, sheets 32px.
 
 ## Motion
 
-- **Focal moment:** finishing the last task in a group. Its banner does a cheer squash, 34 jelly beans burst from it in the group colour, and the group shows a happy blob with "All done!".
+- **Focal moment:** finishing the last task in a group. Its banner does a cheer squash, 34 jelly beans burst from it in the group colour, the pet cheers, and the group shows "All done!".
 - **Completing a task:** the bubble squishes and fills, then the tile drops away (about 600ms in all). Undo is always offered.
 - **Adding a task:** the new tile drops in with a spring.
 - **Opening a group:** the tile grows into the group page (View Transitions, where supported).
 - **Sheets:** slide up on a phone, bloom on a laptop, and exit faster than they enter.
 - **Reduced motion:** all of the above is switched off, and state changes still show.
 
-## Mochi, the helper
+## Pets
 
-The yellow blob is Mochi, a small jelly character who makes finishing things feel noticed and never gets in the way.
+One pet lives in the app at a time, chosen in Settings (Your pet, Change). There is never a second creature on screen: empty states are text only.
 
-- **Home:** sits on the top edge of the add box, half tucked behind it, breathing and blinking. Hidden whenever a big empty-state blob is already on screen, so there are never two.
-- **Tilt:** on phones Mochi (and every blob) leans, slides and squashes with the phone's tilt; the face and shine drift separately so it reads as jelly. A shake makes Mochi dizzy. On laptops the eyes follow the mouse. iPhones need one tap on Mochi to allow motion.
-- **Moods:** happy, wow, love (heart eyes), wink, sleepy (late at night), dizzy, worried.
-- **When Mochi speaks:** a short cream bubble, 2.6–5 seconds, tap to dismiss.
-  - Finishing a task: a hop and a cheer. Within 7 seconds of the last line, a floating heart instead of more words.
-  - Three in a row: a streak line. Finishing a group or clearing today: a spinning jump and a special line.
-  - Adding a task: a nod, and sometimes "Got it!".
-  - Once a day: a greeting that mentions today's count.
-  - After 45 seconds of quiet, at most every 3 minutes and only half the time: Mochi peeks in from a screen edge with a small line, then goes home.
-- **Never:** while a sheet is open or while you are typing; never about deleting; never guilt.
-- **Control:** tap for a chat, press and hold to nap (with Undo), switches for Mochi and tilt in Settings.
-- **Reduced motion:** no hops, tilt or peeks; lines still appear.
+- **The four pets:**
+  - **Mochi:** a bouncy yellow jelly. Bounces off walls when flicked, rolls when the phone tilts, cheers with jumps. Tricks: Jump, Spin, Wiggle, Flop.
+  - **Boo:** a shy ghost. Floats instead of falling, stays where you let go and drifts home later, speaks in lowercase whispers. Tricks: Loop-de-loop, Hide, Boo!, Glow.
+  - **Sprout:** a plant in a pink pot. Grows one leaf per task finished today, up to five, and blooms when nothing is left for today. Heavy and calm; it barely bounces. Tricks: Sway, Stretch, Sunbathe, Shake leaves.
+  - **Miso:** a ginger cat that roams anywhere. It walks, runs, sits, grooms, yawns, stretches, loafs (sleeps with z's), gets the zoomies, jumps onto task cards and rides them as the list scrolls, pounces at the mouse on a laptop or near your tap on a phone, dangles when picked up, and always lands on its feet. Tricks: Pet, Zoomies, Loaf, Stretch.
+- **Play, for every pet:** drag anywhere; let go while moving to flick it (it keeps the throw speed and bounces off the screen edges); tap for a reaction; tap five times fast and it gets dizzy (Miso gets grumpy and loafs); press and hold, or right-click, for the tricks menu, which also has Change pet and Nap. With a keyboard: Enter taps, the arrow keys move it, M opens the menu.
+- **Home:** the top edge of the add box, tucked slightly behind it. It comes to the front while flying, dragged or sitting on a card. On a laptop the floor outside the add box is the bottom of the window.
+- **Tilt and shake (phones):** resting pets slide with the tilt, faces lean and look. A hard shake throws the pet around. The mouse only moves the eyes; it never pushes a pet. iPhones need one tap on the pet to allow motion.
+- **Speech:** a cream bubble that follows the pet, 2.6 to 5 seconds, tap to dismiss. Each pet has its own voice for finishing, streaks, a finished group, a clear day, adding, taps, flicks, being held, late nights and a daily hello. Within 7 seconds of the last line, a heart instead of more words. Now and then, after 45 quiet seconds, Mochi or Boo clings to a screen edge with a small line.
+- **Never:** speaks while a sheet is open or while you type (except when you act on the pet); never about deleting; never guilt.
+- **Reduced motion:** no flights, walks, jumps or tilt; lines and moods still appear.
+- **Stored:** the chosen pet and the tilt switch travel inside backups. Older saves with Mochi switched off become "No pet".
 
 ## Components
 
@@ -91,7 +91,6 @@ The yellow blob is Mochi, a small jelly character who makes finishing things fee
 - Group banner: name, counts, Add and Edit buttons.
 - Dock: chips (group, Today, Date) and a field with a send button in the group colour.
 - Calendar day: date plus coloured beads; today is lemon jelly.
-- Blob: the mascot for empty and all-done states.
 - Toast: cream pill with Undo, placed above the dock on phones and bottom-right on laptops.
 - Sheets: task editor with its colour band from the group, group editor with a live preview tile, a group picker, and backup and restore.
 
