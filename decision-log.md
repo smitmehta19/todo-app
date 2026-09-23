@@ -14,10 +14,20 @@ The project was restarted because the demos had grown too complex. Everything be
 | R6 | To use it on a phone, the file must be hosted at a web address | Critical | Open | n/a |
 | R7 | Visual redesign: coloured group cards, big date, one characterful font | Design | Done | Yes |
 | R8 | Old demos deleted (moved to the Recycle Bin) | Housekeeping | Done | Yes, from the Recycle Bin |
+| R12 | Mochi the helper (tilt, cheers, peeks) and group bars that open in place on Today | Design | Done | Yes, Mochi can be switched off |
 | R11 | Hosted on GitHub Pages; installable to the home screen; own git repo | Critical | Done | Yes |
 | R10 | Background changed from dark cocoa to midnight blue | Design | Done | Yes |
 | R9 | "Squishy" redesign through the impeccable process; Today first; real laptop layout | Design | Done | Yes |
 | C1 | Git deferred; the home-directory repo must not be used | Critical | Done (R11) | n/a |
+
+### R12. Mochi and group bars (2026-09-24)
+- Requests: the owner asked for the yellow blob to move when the phone tilts, and to become a playful, non-intrusive helper that congratulates finished tasks. Mid-build they added a second request: seeing a group's tasks took too many taps (Groups tab, then tile), so groups should sit folded on Today, open in place when tapped, and fold again when tapping anywhere else.
+- Mochi: tilt physics with a spring (only while moving, paused when hidden), a shake detector, mouse-follow on laptops, seven moods, blinking, a speech bubble with cooldowns, hearts instead of repeated words, edge peeks at most every 3 minutes, a daily greeting, tap to chat, press and hold to nap, and settings switches. Full rules in DESIGN.md.
+- Group bars: a "Groups" section on Today with one folded bar per group. One open at a time; tapping outside folds it, except the add box, pop-ups and Mochi. While a bar is open the add box targets that group. The Groups tab and group pages remain.
+- Settings: the shield sheet is now "Settings" with a Mochi section. Mochi preferences travel inside backups.
+- Rejected: Mochi speaking on every single completion (too chatty); a separate mascot per group; sound.
+- Verified in the browser: the fold/unfold rules, adding into the open group, the finish-a-group reaction, the heart during cooldown, tilt response, tap reaction, peek, nap with Undo, laptop placement.
+- Not verified: real gyroscope and shake on a physical phone, the iPhone motion permission prompt, battery impact over a long session.
 
 ### R11. Hosting on GitHub Pages (2026-09-23)
 - Decision: public repo `smitmehta19/todo-app`, published at https://smitmehta19.github.io/todo-app/. The root page redirects to `app/`.

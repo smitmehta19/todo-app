@@ -65,7 +65,26 @@ Radii: tiles 24–30px, chips 14px, fields 18px, sheets 32px.
 - **Sheets:** slide up on a phone, bloom on a laptop, and exit faster than they enter.
 - **Reduced motion:** all of the above is switched off, and state changes still show.
 
+## Mochi, the helper
+
+The yellow blob is Mochi, a small jelly character who makes finishing things feel noticed and never gets in the way.
+
+- **Home:** sits on the top edge of the add box, half tucked behind it, breathing and blinking. Hidden whenever a big empty-state blob is already on screen, so there are never two.
+- **Tilt:** on phones Mochi (and every blob) leans, slides and squashes with the phone's tilt; the face and shine drift separately so it reads as jelly. A shake makes Mochi dizzy. On laptops the eyes follow the mouse. iPhones need one tap on Mochi to allow motion.
+- **Moods:** happy, wow, love (heart eyes), wink, sleepy (late at night), dizzy, worried.
+- **When Mochi speaks:** a short cream bubble, 2.6–5 seconds, tap to dismiss.
+  - Finishing a task: a hop and a cheer. Within 7 seconds of the last line, a floating heart instead of more words.
+  - Three in a row: a streak line. Finishing a group or clearing today: a spinning jump and a special line.
+  - Adding a task: a nod, and sometimes "Got it!".
+  - Once a day: a greeting that mentions today's count.
+  - After 45 seconds of quiet, at most every 3 minutes and only half the time: Mochi peeks in from a screen edge with a small line, then goes home.
+- **Never:** while a sheet is open or while you are typing; never about deleting; never guilt.
+- **Control:** tap for a chat, press and hold to nap (with Undo), switches for Mochi and tilt in Settings.
+- **Reduced motion:** no hops, tilt or peeks; lines still appear.
+
 ## Components
+
+- Group bars on Today: each group is a folded jelly bar (name, next due, count left). Tap to open it in place, tap anywhere else to fold it. While one is open, new tasks go into that group.
 
 - Task tile: bubble, title, then chips for due date, group tag and note.
 - Group tile: name, big count, next due.
