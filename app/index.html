@@ -1,0 +1,1178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#11142a">
+<title>To-do</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="To-do">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500..800&family=Nunito:wght@500..800&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#11142a; --surface:#1b1f3b; --surface2:#262b4d; --ledge:#080a18; --line:#313763;
+  --text:#f7f5ff; --mute:#bcc0e0; --faint:#9a9fc6; --ink:#1b1533;
+  --late:#ff8f80; --late-bg:rgba(255,122,110,.16); --soon:#ffd66b; --soon-bg:rgba(255,213,79,.14);
+  --cream:#f7f5ff; --cream-edge:#b4b6d8;
+  --spring:cubic-bezier(.34,1.56,.64,1); --out:cubic-bezier(.16,1,.3,1); --drawer:cubic-bezier(.32,.72,0,1);
+  --display:"Baloo 2",ui-rounded,"SF Pro Rounded","Arial Rounded MT Bold",system-ui,sans-serif;
+  --body:"Nunito",ui-rounded,"SF Pro Rounded",system-ui,sans-serif;
+  --r:24px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text)}
+body{font:16px/1.4 var(--body);font-weight:600;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;caret-color:#ff9a52}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+:focus-visible{outline:3px solid #ffd54f;outline-offset:3px;border-radius:14px}
+::selection{background:rgba(255,154,82,.4);color:var(--text)}
+*{scrollbar-width:thin;scrollbar-color:#363c6b transparent}
+::-webkit-scrollbar{width:8px}::-webkit-scrollbar-thumb{background:#363c6b;border-radius:8px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ic{width:20px;height:20px;flex:none}
+h1,h2,h3{font-family:var(--display);margin:0;letter-spacing:-.01em;text-wrap:balance}
+.stat b,.sec .n,.gtile .ct b,.day .num,.fact b{font-variant-numeric:tabular-nums}
+
+/* ---------- jelly: the one material ---------- */
+/* a pressable toy: lit top, a coloured ledge underneath that the press pushes into, then a spring back */
+.jelly{
+  --edge:color-mix(in srgb,var(--c) 58%,#000);
+  position:relative;color:var(--ink);border-radius:var(--r);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--c) 78%,#fff) 0%,var(--c) 38%,var(--c) 100%);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.5),inset 0 -4px 0 rgba(0,0,0,.07),0 6px 0 var(--edge),0 16px 26px -10px rgba(0,0,0,.75);
+  transition:transform 380ms var(--spring),box-shadow 380ms var(--spring);
+}
+.jelly::after{content:"";position:absolute;left:14px;top:9px;width:34%;max-width:120px;height:9px;border-radius:9px;background:rgba(255,255,255,.38);pointer-events:none}
+button.jelly:active,.press:active{transform:translateY(5px) scale(1.015,.975);transition-duration:90ms}
+button.jelly:active{box-shadow:inset 0 2px 0 rgba(255,255,255,.5),inset 0 -4px 0 rgba(0,0,0,.07),0 1px 0 var(--edge),0 6px 12px -6px rgba(0,0,0,.7)}
+button.jelly:disabled:active{transform:none}
+@media (hover:hover){.jelly.lift:hover{transform:translateY(-2px);box-shadow:inset 0 2px 0 rgba(255,255,255,.5),inset 0 -4px 0 rgba(0,0,0,.07),0 8px 0 var(--edge),0 20px 30px -10px rgba(0,0,0,.8)}}
+.jelly.neutral{--c:#363c6b;color:var(--text)}
+.jelly.neutral::after{background:rgba(255,255,255,.12)}
+.jelly.cream{--c:var(--cream);--edge:var(--cream-edge)}
+
+/* ---------- shell ---------- */
+.shell{height:100dvh;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto auto;max-width:640px;margin:0 auto}
+.pane{grid-row:1;grid-column:1;display:flex;flex-direction:column;min-height:0}
+.scroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:calc(20px + env(safe-area-inset-top)) 18px 30px}
+.shell[data-tab="today"] .pane-main,.shell:not([data-tab="today"]) .pane-today{display:none}
+.dock{grid-row:2;grid-column:1}
+.tabs{grid-row:3;grid-column:1}
+.mainbar{display:none}
+@media (min-width:900px){
+  .shell{max-width:1320px;grid-template-columns:minmax(360px,410px) minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;column-gap:10px}
+  .pane-today{grid-row:1;grid-column:1;display:flex!important}
+  .pane-main{grid-row:1/span 2;grid-column:2;display:flex!important}
+  .dock{grid-row:2;grid-column:1}
+  .shell .tabs{display:none}
+  .mainbar{display:flex}
+  .pane-main .scroll{padding-top:8px}
+  .hide-wide{display:none!important}
+}
+
+/* ---------- headers ---------- */
+.head{display:flex;align-items:flex-start;gap:10px}
+.head .grow{flex:1;min-width:0}
+.head h1{font-size:48px;line-height:.95;font-weight:800;letter-spacing:-.025em}
+.head .date{margin:6px 0 0;color:var(--mute);font-size:16px}
+.iconbtn{width:46px;height:46px;border-radius:16px;display:grid;place-items:center;color:var(--mute);background:var(--surface);flex:none;box-shadow:0 4px 0 var(--ledge);transition:transform 380ms var(--spring),box-shadow 380ms var(--spring),color 160ms}
+.iconbtn:active{transform:translateY(4px);box-shadow:0 0 0 var(--ledge);transition-duration:90ms}
+@media (hover:hover){.iconbtn:hover{color:var(--text)}}
+.mainbar{align-items:center;gap:10px;padding:calc(20px + env(safe-area-inset-top)) 18px 14px}
+.mainbar .grow{flex:1}
+.seg{display:flex;gap:6px;background:var(--surface);padding:6px;border-radius:22px;box-shadow:inset 0 3px 8px rgba(0,0,0,.4)}
+.seg button{height:42px;padding:0 20px;border-radius:16px;font-family:var(--display);font-size:18px;font-weight:700;color:var(--mute)}
+.seg button.jelly{--c:var(--cream);--edge:var(--cream-edge);color:var(--ink);box-shadow:inset 0 2px 0 rgba(255,255,255,.5),0 4px 0 var(--edge)}
+.seg button.jelly::after{display:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0}
+.stat{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border-radius:999px;background:var(--surface);font-size:14.5px;color:var(--mute)}
+.stat b{font-family:var(--display);font-size:18px;font-weight:800;color:var(--text)}
+.stat.late{background:var(--late-bg);color:var(--late)}.stat.late b{color:var(--late)}
+.stat.today{background:var(--soon);color:var(--ink)}.stat.today b{color:var(--ink)}
+
+/* ---------- sections + task tiles ---------- */
+.sec{display:flex;align-items:baseline;gap:10px;margin:32px 4px 12px}
+.sec h2{font-size:23px;font-weight:800}
+.sec .n{font-family:var(--display);font-size:17px;font-weight:700;color:var(--faint)}
+.sec .hint{margin-left:auto;font-size:13.5px;color:var(--faint)}
+.sec.late h2{color:var(--late)}
+.tasks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.task{--tledge:color-mix(in srgb,var(--c) 38%,var(--ledge));position:relative;display:flex;align-items:flex-start;background:color-mix(in srgb,var(--c) 12%,var(--surface));border-radius:22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 5px 0 var(--tledge),0 14px 22px -12px rgba(0,0,0,.8);transition:transform 380ms var(--spring),box-shadow 380ms var(--spring),background-color 160ms}
+.task:has(.tbody:active){transform:translateY(4px) scale(1.01,.98);box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 1px 0 var(--tledge),0 6px 12px -8px rgba(0,0,0,.8);transition-duration:90ms}
+@media (hover:hover){.task:hover{background:color-mix(in srgb,var(--c) 17%,var(--surface))}}
+.task.new{animation:drop 560ms var(--spring)}
+@keyframes drop{0%{opacity:0;transform:translateY(-14px) scale(.96,1.06)}60%{opacity:1}}
+.bubble{flex:none;width:62px;min-height:62px;display:grid;place-items:center}
+.bubble i{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 24%,transparent);box-shadow:inset 0 0 0 3px var(--c),inset 0 5px 6px rgba(0,0,0,.3);transition:transform 300ms var(--spring)}
+.bubble:active i{transform:scale(.8)}
+.bubble svg{width:17px;height:17px;color:var(--ink);opacity:0;transform:scale(.4) rotate(-12deg);transition:opacity 150ms,transform 380ms var(--spring)}
+.task.done .bubble i,.task.completing .bubble i{background:linear-gradient(180deg,color-mix(in srgb,var(--c) 75%,#fff),var(--c) 60%);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 3px 0 color-mix(in srgb,var(--c) 55%,#000)}
+.task.done .bubble svg,.task.completing .bubble svg{opacity:1;transform:none}
+.task.completing .bubble i{animation:squish 460ms var(--spring)}
+@keyframes squish{0%{transform:scale(1)}30%{transform:scale(1.28,.7)}60%{transform:scale(.88,1.16)}100%{transform:scale(1)}}
+.task.completing{animation:dropout 280ms 330ms ease-in forwards}
+@keyframes dropout{to{opacity:0;transform:translateY(10px) scale(.94,.9)}}
+.tbody{flex:1;min-width:0;text-align:left;padding:18px 18px 18px 0}
+.tt{display:block;font-size:17px;font-weight:700;line-height:1.3;overflow-wrap:anywhere}
+.task.done .tt{color:var(--mute);text-decoration:line-through;text-decoration-thickness:2px;text-decoration-color:var(--faint)}
+.tmeta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:9px}
+.due{display:inline-flex;align-items:center;height:26px;padding:0 11px;border-radius:999px;background:var(--surface2);font-size:13.5px;font-weight:700;color:var(--mute)}
+.due.late{background:var(--late-bg);color:var(--late)}
+.due.today{background:var(--soon);color:var(--ink);box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+.tmeta .has{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--surface2);color:var(--mute)}
+.tmeta .has .ic{width:14px;height:14px}
+.gtag{display:inline-flex;align-items:center;height:26px;padding:0 11px;border-radius:999px;background:var(--c);color:var(--ink);font-size:13px;font-weight:800;box-shadow:inset 0 1px 0 rgba(255,255,255,.45)}
+
+/* ---------- blob (empty states) ---------- */
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;padding:30px 16px 8px}
+.empty > .blob{width:132px;height:120px;margin-bottom:10px;animation:wobble 3.6s ease-in-out infinite;transform-origin:50% 90%}
+@keyframes wobble{0%,100%{transform:scale(1,1)}50%{transform:scale(1.045,.955)}}
+.empty h2{font-size:31px;font-weight:800;line-height:1.05}
+.empty p{margin:8px 0 0;max-width:30ch;color:var(--mute)}
+.suggest{display:flex;flex-wrap:wrap;justify-content:center;gap:14px 10px;margin-top:22px}
+.suggest .jelly{height:50px;padding:0 20px;border-radius:18px;font-family:var(--display);font-size:18px;font-weight:700;display:inline-flex;align-items:center;gap:8px}
+.suggest .jelly::after{display:none}
+
+/* ---------- banners ---------- */
+.banner{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:20px;padding:12px 10px 12px 16px;margin:18px 0 0;font-size:15px;box-shadow:inset 0 0 0 2px rgba(255,213,79,.3)}
+.banner .ic{color:var(--soon)}
+.banner.err{box-shadow:inset 0 0 0 2px rgba(255,122,110,.45)}
+.banner.err .ic{color:var(--late)}
+.banner p{margin:0;flex:1}
+.mini{height:40px;padding:0 15px;border-radius:14px;font-family:var(--display);font-size:16px;font-weight:700;flex:none;display:inline-flex;align-items:center;gap:6px}
+.mini::after{display:none}
+.xbtn{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:var(--mute);flex:none}
+
+/* ---------- groups board ---------- */
+.board-head{display:flex;align-items:flex-end;gap:10px;margin-bottom:24px}
+.board-head h1{font-size:48px;line-height:.95;font-weight:800;letter-spacing:-.025em;flex:1}
+.board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 14px}
+@media (min-width:900px){.board-head{display:none}.board{grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:26px 18px}}
+.gtile{display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-height:170px;padding:20px 18px 16px;border-radius:28px}
+.gtile .nm{font-family:var(--display);font-size:23px;font-weight:800;line-height:1.08;max-width:100%;overflow-wrap:anywhere;margin-top:12px}
+.gtile .ct{margin-top:auto;display:flex;align-items:baseline;gap:6px;font-size:14.5px;font-weight:800;opacity:.85}
+.gtile .ct b{font-family:var(--display);font-size:46px;line-height:.9;font-weight:800}
+.gtile .nx{margin-top:4px;font-size:13.5px;font-weight:800;opacity:.78}
+.gtile.new{border:3px dashed var(--line);color:var(--mute);align-items:center;justify-content:center;gap:8px;font-family:var(--display);font-size:19px;font-weight:700;transition:border-color 160ms,color 160ms,transform 380ms var(--spring)}
+.gtile.new:active{transform:scale(.96)}
+.gtile.new .ic{width:30px;height:30px}
+@media (hover:hover){.gtile.new:hover{border-color:var(--mute);color:var(--text)}}
+
+/* ---------- group page ---------- */
+.back,.textbtn,.donehead .tog,.pickrow,.xbtn{transition:transform 320ms var(--spring),background-color 140ms,color 140ms}
+.back:active,.textbtn:active,.donehead .tog:active,.pickrow:active,.xbtn:active{transform:scale(.95);transition-duration:90ms}
+.back{display:inline-flex;align-items:center;gap:4px;height:42px;padding:0 12px 0 6px;margin:0 0 14px -6px;border-radius:14px;color:var(--mute);font-family:var(--display);font-size:18px;font-weight:700}
+@media (hover:hover){.back:hover{color:var(--text);background:var(--surface)}}
+.banner-g{display:flex;flex-direction:column;gap:12px;padding:26px 20px 18px;border-radius:30px;margin-bottom:24px}
+.banner-g.celebrate{animation:cheer 700ms var(--spring)}
+@keyframes cheer{0%{transform:scale(1)}25%{transform:scale(1.06,.9)}55%{transform:scale(.96,1.08)}100%{transform:scale(1)}}
+.banner-g h1{font-size:42px;line-height:1;font-weight:800;letter-spacing:-.025em;overflow-wrap:anywhere;margin-top:6px}
+.banner-g .meta{font-size:15px;font-weight:800;opacity:.85}
+.banner-g .acts{display:flex;gap:8px;margin-top:2px}
+.inkbtn{height:42px;padding:0 16px;border-radius:14px;background:rgba(27,21,51,.14);color:var(--ink);font-family:var(--display);font-size:17px;font-weight:700;display:inline-flex;align-items:center;gap:6px;transition:transform 300ms var(--spring),background-color 150ms}
+.inkbtn:active{transform:scale(.93)}
+.inkbtn:focus-visible{outline-color:var(--ink)}
+.inkbtn .ic{width:18px;height:18px}
+@media (hover:hover){.inkbtn:hover{background:rgba(27,21,51,.22)}}
+.banner-g.neutral .inkbtn{background:rgba(255,255,255,.1);color:var(--text)}
+.gempty{padding:18px 6px;color:var(--mute)}
+.donehead{display:flex;align-items:center;gap:8px;margin:32px 0 12px}
+.donehead .tog{flex:1;display:flex;align-items:center;gap:8px;height:42px;padding:0 8px 0 4px;border-radius:12px;font-family:var(--display);font-size:20px;font-weight:700;color:var(--mute)}
+.donehead .tog .ic{transition:transform 260ms var(--out)}
+.donehead .tog[aria-expanded="false"] .ic{transform:rotate(-90deg)}
+.textbtn{height:40px;padding:0 14px;border-radius:12px;color:var(--mute);font-weight:800;font-size:14.5px}
+@media (hover:hover){.textbtn:hover{background:var(--surface);color:var(--text)}}
+
+/* ---------- calendar ---------- */
+.calhead{display:flex;align-items:center;gap:8px;margin-bottom:18px}
+.calhead h1{flex:1;font-size:44px;line-height:.95;font-weight:800;letter-spacing:-.025em}
+.calhead h1 small{font-size:20px;font-weight:600;color:var(--faint);margin-left:8px;letter-spacing:0}
+@media (max-width:899px){.calhead h1{font-size:36px}.calhead h1 small{font-size:17px;margin-left:6px}}
+.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px}
+.wd{text-align:center;font-family:var(--display);font-size:14px;font-weight:700;color:var(--faint);padding-bottom:2px}
+.day{min-width:0;height:62px;border-radius:18px;display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:9px;background:rgba(247,245,255,.035);transition:transform 320ms var(--spring),box-shadow 320ms var(--spring),background-color 150ms}
+.day.busy{background:var(--surface);box-shadow:0 4px 0 var(--ledge)}
+.day:active{transform:translateY(3px) scale(.97);transition-duration:90ms}
+.day.busy:active{box-shadow:0 1px 0 var(--ledge)}
+@media (hover:hover){.day:not(.today):hover{background:var(--surface)}}
+.day .num{font-family:var(--display);font-size:18px;font-weight:700;line-height:1}
+.day.out{background:transparent;box-shadow:none;color:var(--faint)}
+.day[aria-pressed="true"]{background:var(--surface2);box-shadow:inset 0 0 0 3px var(--cream),0 4px 0 var(--ledge)}
+.day.out{background:transparent}
+.day.today{--c:#ffd54f;color:var(--ink);background:linear-gradient(180deg,#ffe58f 0%,#ffd54f 42%);box-shadow:inset 0 2px 0 rgba(255,255,255,.5),0 4px 0 #9a7d1f}
+.day.today[aria-pressed="true"]{box-shadow:inset 0 0 0 3px var(--ink),0 4px 0 #9a7d1f}
+.beads{display:flex;gap:3px;flex-wrap:wrap;justify-content:center;max-width:44px}
+.beads i{width:9px;height:9px;border-radius:50%;background:var(--c);box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+.beads i.d{opacity:.3}
+.day.today .beads i{box-shadow:0 0 0 1.5px var(--ink)}
+@media (max-width:899px){.day{height:50px;gap:4px;padding-top:7px}.day .num{font-size:17px}}
+@media (min-width:900px){.day{height:88px}.beads{max-width:60px}}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 0}
+.legend span{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 13px;border-radius:999px;background:var(--surface);font-size:14px;color:var(--mute)}
+.legend i{width:11px;height:11px;border-radius:50%;background:var(--c)}
+.legend i.none{background:transparent;box-shadow:inset 0 0 0 2px var(--mute)}
+
+/* ---------- dock ---------- */
+.dock{margin:0 10px 10px;padding:10px;border-radius:26px;background:var(--surface);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 6px 0 var(--ledge),0 22px 40px -12px rgba(0,0,0,.8)}
+@media (min-width:900px){.dock{margin:0 10px calc(18px + env(safe-area-inset-bottom))}}
+.dockopts{display:none;flex-wrap:wrap;gap:8px;margin-bottom:10px;padding:2px 2px 6px}
+.dock:focus-within .dockopts,.dock.ctx .dockopts{display:flex}
+#groupChip .lbl{max-width:150px}
+@media (min-width:900px){.dockopts{display:flex}}
+.chip{position:relative;display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 14px;border-radius:14px;background:var(--surface2);font-size:14.5px;font-weight:800;color:var(--mute);white-space:nowrap;flex:none;cursor:pointer;max-width:70%;box-shadow:0 3px 0 var(--ledge);transition:transform 300ms var(--spring),box-shadow 300ms var(--spring)}
+.chip:active{transform:translateY(3px);box-shadow:0 0 0 var(--ledge);transition-duration:90ms}
+.chip .lbl{overflow:hidden;text-overflow:ellipsis}
+.chip .ic{width:16px;height:16px}
+.chip.on{background:var(--c,var(--cream));color:var(--ink);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 3px 0 color-mix(in srgb,var(--c,var(--cream)) 55%,#000)}
+.chip input[type=date]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;border:0;padding:0}
+.chip:has(input:focus-visible){outline:3px solid #ffd54f;outline-offset:3px}
+.dotc{width:11px;height:11px;border-radius:50%;background:var(--c);box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+.chip.on .dotc{background:var(--ink);box-shadow:none}
+.dotc.none{background:transparent;box-shadow:inset 0 0 0 2px currentColor}
+.dockrow{display:flex;gap:10px;align-items:center}
+.dockrow input{flex:1;min-width:0;height:54px;border:0;border-radius:18px;background:var(--bg);padding:0 18px;font-size:17px;font-weight:700;box-shadow:inset 0 3px 8px rgba(0,0,0,.45);transition:box-shadow 200ms}
+.dockrow input::placeholder{color:var(--mute);font-weight:600}
+.dockrow input:focus{outline:none;box-shadow:inset 0 3px 8px rgba(0,0,0,.45),inset 0 0 0 2.5px var(--c,var(--cream))}
+.send{width:54px;height:54px;border-radius:18px;display:grid;place-items:center;flex:none}
+.send::after{left:10px;top:7px;width:18px;height:6px}
+.send .ic{width:26px;height:26px}
+.send:disabled{opacity:.45;cursor:default}
+
+/* ---------- tabs (phone) ---------- */
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:2px 12px calc(10px + env(safe-area-inset-bottom))}
+.tabs button{height:52px;border-radius:18px;display:flex;align-items:center;justify-content:center;gap:7px;font-family:var(--display);font-size:16.5px;font-weight:700;color:var(--mute)}
+.tabs button.jelly{--c:var(--cream);--edge:var(--cream-edge);color:var(--ink);box-shadow:inset 0 2px 0 rgba(255,255,255,.5),0 4px 0 var(--edge)}
+.tabs button.jelly::after{display:none}
+.tabs button .ic{width:19px;height:19px}
+
+/* ---------- toast + beans ---------- */
+.toast{position:fixed;left:50%;bottom:calc(var(--toast-b,150px) + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(460px,calc(100% - 28px));display:flex;align-items:center;gap:12px;padding:8px 8px 8px 18px;background:var(--cream);color:var(--ink);border-radius:20px;font-size:15px;font-weight:800;box-shadow:0 5px 0 var(--cream-edge),0 18px 36px -10px rgba(0,0,0,.7);z-index:10;min-height:54px}
+.toast span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.toast button{height:38px;padding:0 14px;border-radius:13px;background:var(--ink);color:var(--cream);font-family:var(--display);font-size:16px;font-weight:700}
+.toast.show{animation:pop 420ms var(--spring)}
+@keyframes pop{from{opacity:0;transform:translateX(-50%) translateY(14px) scale(.9)}}
+@media (min-width:900px){.toast{bottom:30px;left:auto;right:30px;transform:none}.toast.show{animation-name:popw}@keyframes popw{from{opacity:0;transform:translateY(14px) scale(.9)}}}
+.bean{position:fixed;width:16px;height:10px;border-radius:6px;pointer-events:none;z-index:20;box-shadow:inset 0 2px 0 rgba(255,255,255,.55)}
+
+/* ---------- sheets ---------- */
+dialog.sheet{border:0;padding:0;margin:auto auto 0;width:100%;max-width:560px;max-height:92dvh;background:var(--surface);color:var(--text);border-radius:32px 32px 0 0;box-shadow:0 -20px 50px rgba(0,0,0,.6);overflow:hidden}
+dialog.sheet[open]{animation:up 420ms var(--drawer)}
+dialog.sheet.closing{animation:down 180ms ease-in forwards}
+dialog.sheet::backdrop{background:rgba(5,6,16,.7)}
+dialog.sheet[open]::backdrop{animation:fade 240ms ease}
+@keyframes up{from{transform:translateY(100%)}}
+@keyframes down{to{transform:translateY(100%)}}
+@keyframes fade{from{opacity:0}}
+@media (min-width:900px){
+  dialog.sheet{margin:auto;border-radius:32px;box-shadow:0 8px 0 var(--ledge),0 40px 80px rgba(0,0,0,.6)}
+  dialog.sheet[open]{animation:bloom 440ms var(--spring)}
+  dialog.sheet.closing{animation:shrink 160ms ease-in forwards}
+  @keyframes bloom{from{opacity:0;transform:scale(.9)}}
+  @keyframes shrink{to{opacity:0;transform:scale(.95)}}
+}
+.sheet-in{max-height:92dvh;overflow:auto;padding-bottom:calc(22px + env(safe-area-inset-bottom))}
+.grab{width:44px;height:5px;border-radius:3px;background:currentColor;opacity:.3;margin:10px auto}
+.sheet-band{margin:10px 10px 0;padding:4px 20px 24px;border-radius:26px}
+.sheet-band .titlebox{margin-top:6px}
+.sheet-band .kicker{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:800;opacity:.8;margin:2px 0 6px}
+.sheet-band .kicker:focus{outline:none}
+.sheet-band .kicker .ic{width:16px;height:16px}
+.titlebox{display:block;width:100%;border:0;background:transparent;color:inherit;font-family:var(--display);font-size:28px;line-height:1.15;font-weight:800;letter-spacing:-.015em;resize:none;padding:0;overflow:hidden;field-sizing:content;min-height:1.15em}
+.titlebox:focus{outline:none}
+.sheet-body{padding:4px 22px 0}
+.sheet h2{font-size:31px;font-weight:800;line-height:1.05;margin-top:2px}
+.sheet h2:focus{outline:none}
+.fl{display:flex;align-items:center;gap:8px;margin:24px 0 10px;font-family:var(--display);font-size:18px;font-weight:700;color:var(--mute)}
+.fl .ic{width:18px;height:18px}
+.field{width:100%;border:0;border-radius:18px;background:var(--bg);padding:14px 16px;font-size:16.5px;font-weight:600;resize:vertical;box-shadow:inset 0 3px 8px rgba(0,0,0,.45);transition:box-shadow 200ms}
+.field:focus{outline:none;box-shadow:inset 0 3px 8px rgba(0,0,0,.45),inset 0 0 0 2.5px var(--cream)}
+.field::placeholder{color:var(--mute)}
+.pills{display:flex;flex-wrap:wrap;gap:10px}
+.pills .chip{height:40px;padding:0 16px;max-width:100%}
+fieldset{border:0;margin:24px 0 0;padding:0;min-width:0}
+fieldset>legend.fl{padding:0;margin-top:0}
+.pills label.chip input[type=radio]{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.pills label.chip:has(input:checked){background:var(--c);color:var(--ink);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 3px 0 color-mix(in srgb,var(--c) 55%,#000)}
+.pills label.chip:has(input:checked) .dotc{background:var(--ink);box-shadow:none}
+.pills label.chip:has(input:checked) .dotc.none{background:transparent;box-shadow:inset 0 0 0 2px currentColor}
+.gpreview{display:flex;align-items:flex-end;gap:10px;min-height:96px;padding:18px 20px;margin:18px 0 6px;border-radius:28px}
+.gpreview .nm{flex:1;min-width:0;font-family:var(--display);font-size:29px;font-weight:800;line-height:1.05;overflow-wrap:anywhere}
+.gpreview .nm.ph{opacity:.45}
+.gpreview .cn{font-size:14px;font-weight:800;opacity:.75}
+.swatches{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:10px;padding:4px 2px}
+.sw{position:relative;aspect-ratio:1;border-radius:50%;background:linear-gradient(180deg,color-mix(in srgb,var(--c) 70%,#fff),var(--c) 55%);box-shadow:inset 0 2px 0 rgba(255,255,255,.5),0 4px 0 color-mix(in srgb,var(--c) 55%,#000);cursor:pointer;transition:transform 340ms var(--spring)}
+.sw input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.sw:has(input:checked){transform:scale(1.14) translateY(-2px);outline:3px solid var(--cream);outline-offset:3px}
+.sw:has(input:focus-visible){outline:3px solid #ffd54f;outline-offset:5px}
+.err{margin:10px 0 0;color:var(--late);font-weight:800}
+.actions{display:flex;align-items:center;gap:10px;margin-top:28px}
+.actions .grow{flex:1}
+#taskSheet .sheet-in{padding-bottom:0}
+.actions.sticky{position:sticky;bottom:0;z-index:1;margin:22px -22px 0;padding:14px 22px calc(16px + env(safe-area-inset-bottom));background:var(--surface);box-shadow:0 -14px 18px -10px var(--surface)}
+.btn{height:52px;padding:0 22px;border-radius:18px;font-family:var(--display);font-size:18px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn::after{display:none}
+.btn.plain{background:var(--surface2);box-shadow:0 4px 0 var(--ledge);transition:transform 360ms var(--spring),box-shadow 360ms var(--spring)}
+.btn.plain:active{transform:translateY(4px);box-shadow:0 0 0 var(--ledge);transition-duration:90ms}
+.btn.danger{color:var(--late);padding:0 12px}
+.btn.block{width:100%}
+.pickrow{display:flex;align-items:center;gap:14px;width:100%;min-height:58px;padding:0 16px;border-radius:18px;text-align:left;font-family:var(--display);font-size:20px;font-weight:700;transition:background-color 140ms}
+.pickrow .dotc{width:16px;height:16px}
+.pickrow[aria-pressed="true"]{background:var(--surface2)}
+.pickrow .ic{margin-left:auto}
+.pickrow.new{color:var(--mute)}
+.pickrow.new .ic{margin:0 0 0 -2px}
+@media (hover:hover){.pickrow:hover{background:var(--surface2)}}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.fact{background:var(--bg);border-radius:20px;padding:16px;box-shadow:inset 0 3px 8px rgba(0,0,0,.4)}
+.fact b{display:block;font-family:var(--display);font-size:32px;font-weight:800;line-height:1}
+.fact span{font-size:14px;color:var(--mute)}
+.fact.warn b{color:var(--soon)}
+.fact.wide{grid-column:1/-1;display:flex;align-items:center;gap:12px}
+.fact.wide .ic{color:var(--mute);width:24px;height:24px}
+.fact.wide p{margin:0;font-size:14.5px}
+.stack{display:flex;flex-direction:column;gap:16px;margin-top:20px}
+.fine{margin:18px 2px 0;font-size:14px;line-height:1.55;color:var(--mute);font-weight:600}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition-duration:1ms!important}
+  button.jelly:active,.press:active,.task:has(.tbody:active){transform:none!important}
+}
+::view-transition-group(*){animation-duration:440ms;animation-timing-function:cubic-bezier(.16,1,.3,1)}
+</style>
+</head>
+<body>
+<!--
+THESIS: tasks as soft toys you press. Every group is a jelly-coloured tile; every tap squashes and springs back. Refuses the flat grey-card list and the loud colour-slab page.
+OWN-WORLD: midnight blue ground, eight candy colours (strawberry, tangerine, lemon, apple, mint, blueberry, grape, bubblegum) with dark ink on top, cream text; Baloo 2 display, Nunito body; puffy tiles with a lit top and a pressable ledge underneath (the ledge is the press mechanism, not decoration).
+STORY: open to Today, capture in one line, tap a bubble to finish, open a group tile to work on a big thing.
+FIRST VIEWPORT: phone: "Today" at 48px, date, late/today counts, task tiles, dock and three jelly tabs at the thumb. Laptop: Today column left, group tile board right.
+FORM: Squishy, chosen by the owner from four directions; code-led, no image generation available.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance.
+-->
+<div class="shell" id="shell" data-tab="today">
+  <section class="pane pane-today" aria-label="Today">
+    <div class="scroll" id="todayScroll">
+      <div class="head">
+        <div class="grow"><h1>Today</h1><p class="date" id="todayDate"></p></div>
+        <button type="button" class="iconbtn hide-wide" data-act="data" aria-label="Backup and restore" data-icon="safe"></button>
+      </div>
+      <div id="today"></div>
+    </div>
+  </section>
+
+  <section class="pane pane-main" aria-label="Groups and calendar">
+    <div class="mainbar">
+      <div class="seg" role="group" aria-label="View">
+        <button type="button" class="press" data-act="tab" data-tab="groups" aria-pressed="true">Groups</button>
+        <button type="button" class="press" data-act="tab" data-tab="cal" aria-pressed="false">Calendar</button>
+      </div>
+      <span class="grow"></span>
+      <button type="button" class="iconbtn" data-act="data" aria-label="Backup and restore" data-icon="safe"></button>
+    </div>
+    <div class="scroll" id="mainScroll"><div id="main"></div></div>
+  </section>
+
+  <form class="dock" id="addForm" autocomplete="off">
+    <div class="dockopts">
+      <button type="button" class="chip" id="groupChip" data-act="pick-group" aria-haspopup="dialog"></button>
+      <button type="button" class="chip" id="todayChip" data-act="due-today" aria-pressed="false"><span data-icon="sun"></span>Today</button>
+      <label class="chip" id="dateChip"><span data-icon="cal"></span><span class="lbl" id="dateText">Date</span><input type="date" id="addDate" aria-label="Due date for the new task"></label>
+      <button type="button" class="chip" id="dueClear" aria-label="Remove the due date" hidden data-icon="x"></button>
+    </div>
+    <div class="dockrow">
+      <input id="addInput" type="text" placeholder="Add a task" aria-label="New task" enterkeyhint="done" maxlength="500">
+      <button type="submit" class="send jelly" id="addBtn" aria-label="Add task" disabled data-icon="plus"></button>
+    </div>
+  </form>
+
+  <nav class="tabs" aria-label="Views">
+    <button type="button" class="press" data-act="tab" data-tab="today"><span data-icon="sun"></span>Today</button>
+    <button type="button" class="press" data-act="tab" data-tab="groups"><span data-icon="grid"></span>Groups</button>
+    <button type="button" class="press" data-act="tab" data-tab="cal"><span data-icon="cal"></span>Calendar</button>
+  </nav>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<!-- task editor -->
+<dialog class="sheet" id="taskSheet" aria-labelledby="tsHead">
+  <div class="sheet-in">
+    <div class="sheet-band jelly" id="tsBand">
+      <div class="grab"></div>
+      <h2 class="sr" id="tsHead" tabindex="-1" autofocus>Edit task</h2>
+      <label class="sr" for="tsTitle">Title</label>
+      <textarea class="titlebox" id="tsTitle" rows="1" maxlength="500"></textarea>
+    </div>
+    <div class="sheet-body">
+      <label class="fl" for="tsNote"><span data-icon="note"></span>Note</label>
+      <textarea class="field" id="tsNote" rows="4" placeholder="Anything worth remembering"></textarea>
+      <label class="fl" for="tsDue"><span data-icon="cal"></span>Due date</label>
+      <input class="field" type="date" id="tsDue">
+      <div class="pills" id="tsDateChips" style="margin-top:12px"></div>
+      <fieldset id="tsGroupSet"><legend class="fl"><span data-icon="grid"></span>Group</legend><div class="pills" id="tsGroups"></div></fieldset>
+      <div class="actions sticky">
+        <button type="button" class="btn danger" id="tsDelete">Delete</button>
+        <span class="grow"></span>
+        <button type="button" class="btn plain" id="tsToggle">Mark done</button>
+        <button type="button" class="btn jelly cream" id="tsClose">Save</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<!-- group editor -->
+<dialog class="sheet" id="groupSheet" aria-labelledby="gsHead">
+  <form class="sheet-in" id="groupForm" novalidate>
+    <div class="sheet-body">
+      <div class="grab"></div>
+      <h2 id="gsHead">New group</h2>
+      <div class="gpreview jelly" id="gsPreview" aria-hidden="true"><span class="nm" id="gsPrevName">Group name</span><span class="cn" id="gsPrevColor"></span></div>
+      <label class="fl" for="gsName">Name</label>
+      <input class="field" id="gsName" maxlength="60" placeholder="For example: Marriage" autocomplete="off">
+      <p class="err" id="gsErr" role="alert" hidden></p>
+      <fieldset><legend class="fl">Colour</legend><div class="swatches" id="gsColors"></div></fieldset>
+      <div class="actions">
+        <button type="button" class="btn danger" id="gsDelete" hidden>Delete</button>
+        <span class="grow"></span>
+        <button type="button" class="btn plain" id="gsCancel">Cancel</button>
+        <button type="submit" class="btn jelly cream" id="gsSave">Create</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<!-- group picker for the dock -->
+<dialog class="sheet" id="pickSheet" aria-labelledby="pkHead">
+  <div class="sheet-in"><div class="sheet-body">
+    <div class="grab"></div>
+    <h2 id="pkHead">Add to…</h2>
+    <div id="pickList" style="margin:14px -8px 0"></div>
+  </div></div>
+</dialog>
+
+<!-- backup and restore -->
+<dialog class="sheet" id="dataSheet" aria-labelledby="dsHead">
+  <div class="sheet-in"><div class="sheet-body">
+    <div class="grab"></div>
+    <h2 id="dsHead">Keep your list safe</h2>
+    <div class="facts" id="dsFacts"></div>
+    <div class="stack">
+      <button type="button" class="btn jelly cream block" id="dsExport">Save a backup file</button>
+      <button type="button" class="btn plain block" id="dsImportBtn">Restore from a backup file</button>
+      <input type="file" id="dsImport" accept="application/json,.json" hidden>
+    </div>
+    <p class="fine">Your tasks live in this browser, on this device only. Nothing is sent anywhere. Clearing the browser's site data deletes them, so a backup file is the copy that survives. Save one every week or so to Google Drive, iCloud or your computer. Restoring replaces what is here now.</p>
+    <div class="actions" style="margin-top:16px"><span class="grow"></span><button type="button" class="btn plain" id="dsClose">Close</button></div>
+  </div></div>
+</dialog>
+
+<script>
+'use strict';
+
+/* ---------- basics ---------- */
+const KEY = 'todo.v1';
+const COLORS = { strawberry:'#ff7a9c', tangerine:'#ff9a52', lemon:'#ffd54f', apple:'#9be15d', mint:'#4fdcc0', blueberry:'#6fa8ff', grape:'#b48cff', bubblegum:'#ff9de2' };
+const COLOR_NAMES = { strawberry:'Strawberry', tangerine:'Tangerine', lemon:'Lemon', apple:'Apple', mint:'Mint', blueberry:'Blueberry', grape:'Grape', bubblegum:'Bubblegum' };
+const OLD_COLORS = { coral:'strawberry', marigold:'lemon', sky:'blueberry', lilac:'grape', pink:'bubblegum', lime:'apple', peach:'tangerine',
+  rose:'bubblegum', amber:'lemon', green:'apple', teal:'mint', blue:'blueberry', violet:'grape', orange:'tangerine' };
+const fixColor = c => COLORS[c] ? c : (OLD_COLORS[c] || 'blueberry');
+const NEUTRAL = '#8f95c0';
+const SUGGEST = [['Marriage','bubblegum'], ['Apply for jobs','blueberry'], ['Home','apple']];
+const $ = id => document.getElementById(id);
+const uid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const wide = () => matchMedia('(min-width: 900px)').matches;
+const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
+const svg = (p, w = 2.4) => `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+const icon = {
+  plus: svg('<path d="M12 5v14M5 12h14"/>', 3),
+  check: svg('<path d="M5 12.5l4.5 4.5L19 7.5"/>', 3.4),
+  tick: svg('<path d="M5 12.5l4.5 4.5L19 7.5"/>'),
+  chev: svg('<path d="M6 9l6 6 6-6"/>'),
+  left: svg('<path d="M15 6l-6 6 6 6"/>'),
+  right: svg('<path d="M9 6l6 6-6 6"/>'),
+  cal: svg('<rect x="3.5" y="5" width="17" height="15.5" rx="4"/><path d="M3.5 10h17M8 3v4M16 3v4"/>'),
+  sun: svg('<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>'),
+  grid: svg('<rect x="3.5" y="3.5" width="7.5" height="7.5" rx="2.5"/><rect x="13" y="3.5" width="7.5" height="7.5" rx="2.5"/><rect x="3.5" y="13" width="7.5" height="7.5" rx="2.5"/><rect x="13" y="13" width="7.5" height="7.5" rx="2.5"/>'),
+  note: svg('<path d="M6 3.5h9l4 4v13H6z"/><path d="M15 3.5v4h4M9 12h6M9 16h4"/>'),
+  pencil: svg('<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>'),
+  safe: svg('<path d="M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6z"/><path d="M9 12l2.2 2.2L15.5 10"/>'),
+  x: svg('<path d="M6 6l12 12M18 6L6 18"/>'),
+  warn: svg('<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17.5v.5"/>'),
+};
+/* the jelly blob for empty states */
+const blob = (c = '#ffd54f', mood = 'happy') => `<svg class="blob" viewBox="0 0 132 120" aria-hidden="true">
+  <ellipse cx="66" cy="112" rx="40" ry="6" fill="rgba(0,0,0,.35)"/>
+  <path d="M66 14c30 0 50 20 52 48 2 28-14 44-52 44S12 90 14 62C16 34 36 14 66 14z" fill="${c}"/>
+  <path d="M66 106c-30 0-48-10-51-30 8 16 26 22 51 22s43-6 51-22c-3 20-21 30-51 30z" fill="rgba(0,0,0,.12)"/>
+  <path d="M38 38c7-10 18-15 30-15" stroke="rgba(255,255,255,.65)" stroke-width="8" stroke-linecap="round" fill="none"/>
+  ${mood === 'sleepy'
+    ? '<path d="M44 64c4-3 8-3 12 0M76 64c4-3 8-3 12 0" stroke="#1b1533" stroke-width="4.5" stroke-linecap="round" fill="none"/>'
+    : '<ellipse cx="51" cy="62" rx="5.5" ry="6.5" fill="#1b1533"/><ellipse cx="81" cy="62" rx="5.5" ry="6.5" fill="#1b1533"/><circle cx="53" cy="59.5" r="1.8" fill="#fff"/><circle cx="83" cy="59.5" r="1.8" fill="#fff"/>'}
+  <path d="M58 76c5 6 11 6 16 0" stroke="#1b1533" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+  <circle cx="41" cy="74" r="6" fill="#ff7a9c" opacity=".55"/><circle cx="91" cy="74" r="6" fill="#ff7a9c" opacity=".55"/>
+</svg>`;
+
+/* ---------- dates (local, YYYY-MM-DD) ---------- */
+const DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DOWL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const pad = n => String(n).padStart(2, '0');
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const today = () => iso(new Date());
+const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
+const diff = (a, b) => Math.round((parse(a) - parse(b)) / 864e5);
+const isDay = s => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
+const longDate = s => { const d = parse(s); return `${DOWL[d.getDay()]} ${d.getDate()} ${MONL[d.getMonth()]}`; };
+function shortDate(s){
+  const d = parse(s), y = d.getFullYear() !== new Date().getFullYear() ? ` ${d.getFullYear()}` : '';
+  return `${DOW[d.getDay()]} ${d.getDate()} ${MON[d.getMonth()]}${y}`;
+}
+function dueLabel(s, done){
+  const n = diff(s, today());
+  if (n === 0) return 'Today';
+  if (n === 1) return 'Tomorrow';
+  if (!done && n < 0) return n === -1 ? 'Yesterday' : `${-n} days late`;
+  if (n > 1 && n < 7) return DOWL[parse(s).getDay()];
+  return shortDate(s);
+}
+function ago(ts){
+  const n = diff(today(), iso(new Date(ts)));
+  return n <= 0 ? 'Today' : n === 1 ? 'Yesterday' : `${n} days ago`;
+}
+
+/* ---------- storage ---------- */
+function blank(){ return { version:1, groups:[], tasks:[], lastBackup:null, bannerHiddenUntil:null, showDone:false }; }
+function normalise(o){
+  if (!o || typeof o !== 'object' || !Array.isArray(o.tasks)) throw new Error('Not a backup');
+  const now = new Date().toISOString();
+  const groups = (Array.isArray(o.groups) ? o.groups : [])
+    .filter(g => g && typeof g.name === 'string' && g.name.trim())
+    .map(g => ({ id:String(g.id || uid()), name:g.name.trim().slice(0, 60), color:fixColor(g.color), collapsed:!!g.collapsed }));
+  const ids = new Set(groups.map(g => g.id));
+  const tasks = o.tasks
+    .filter(t => t && typeof t.title === 'string' && t.title.trim())
+    .map(t => ({
+      id:String(t.id || uid()), title:t.title.trim().slice(0, 500),
+      note:typeof t.note === 'string' ? t.note.slice(0, 5000) : '',
+      due:isDay(t.due) ? t.due : null, groupId:ids.has(t.groupId) ? t.groupId : null,
+      done:!!t.done, doneAt:t.done ? (typeof t.doneAt === 'string' ? t.doneAt : now) : null,
+      createdAt:typeof t.createdAt === 'string' ? t.createdAt : now,
+    }));
+  return { version:1, groups, tasks,
+    lastBackup:typeof o.lastBackup === 'string' ? o.lastBackup : null,
+    bannerHiddenUntil:isDay(o.bannerHiddenUntil) ? o.bannerHiddenUntil : null,
+    showDone:!!o.showDone };
+}
+let unreadable = false;
+function load(){
+  let raw = null;
+  try { raw = localStorage.getItem(KEY); } catch (e) { return blank(); }
+  if (!raw) return blank();
+  try { return normalise(JSON.parse(raw)); }
+  catch (e) {
+    /* never overwrite data we could not read: park it under another key first */
+    try { localStorage.setItem(`${KEY}.unreadable-${Date.now()}`, raw); } catch (_) {}
+    unreadable = true;
+    return blank();
+  }
+}
+let db = load();
+let saveFailed = false;
+function save(){
+  try { localStorage.setItem(KEY, JSON.stringify(db)); saveFailed = false; }
+  catch (e) { saveFailed = true; }
+}
+function commit(){ save(); render(); }
+
+let persisted = null;
+async function checkPersist(){ try { if (navigator.storage && navigator.storage.persisted) persisted = await navigator.storage.persisted(); } catch (_) {} }
+async function requestPersist(){ try { if (!persisted && navigator.storage && navigator.storage.persist) persisted = await navigator.storage.persist(); } catch (_) {} }
+
+/* ---------- lookups ---------- */
+const find = id => db.tasks.find(t => t.id === id);
+const groupById = id => db.groups.find(g => g.id === id);
+const colorOf = t => { const g = t.groupId && groupById(t.groupId); return g ? COLORS[g.color] : NEUTRAL; };
+const byDue = (a, b) => (a.due && b.due) ? (a.due.localeCompare(b.due) || a.createdAt.localeCompare(b.createdAt))
+  : a.due ? -1 : b.due ? 1 : a.createdAt.localeCompare(b.createdAt);
+const openIn = gid => db.tasks.filter(t => !t.done && (gid === 'loose' ? !t.groupId : t.groupId === gid));
+const doneIn = gid => db.tasks.filter(t => t.done && (gid === 'loose' ? !t.groupId : t.groupId === gid));
+
+/* ---------- ui state (not saved) ---------- */
+const firstOfMonth = d => new Date(d.getFullYear(), d.getMonth(), 1);
+const ui = { tab:'today', group:null, addGroup:null, addDue:null, sel:today(), month:firstOfMonth(new Date()), flash:null, editing:null, groupEdit:null, showDoneIn:{} };
+/* on a laptop Today is always on screen, so the right pane shows groups unless the calendar is chosen */
+const mainTab = () => ui.tab === 'cal' ? 'cal' : 'groups';
+
+/* ---------- toast with undo ---------- */
+let toastTimer = null, undoFn = null;
+function placeToast(){
+  const h = wide() ? 0 : $('addForm').offsetHeight + document.querySelector('.tabs').offsetHeight + 22;
+  document.documentElement.style.setProperty('--toast-b', `${h}px`);
+}
+function toast(msg, undo){
+  undoFn = undo || null;
+  placeToast();
+  const t = $('toast');
+  t.innerHTML = `<span>${esc(msg)}</span>${undo ? '<button type="button" data-act="undo">Undo</button>' : ''}`;
+  t.hidden = false; t.classList.remove('show'); void t.offsetWidth; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.hidden = true; undoFn = null; }, 5000);
+}
+function runUndo(){ const f = undoFn; undoFn = null; $('toast').hidden = true; clearTimeout(toastTimer); if (f) f(); }
+
+/* ---------- jelly beans when a whole group is finished ---------- */
+function beans(el, color){
+  if (reduceMotion() || !el || !el.animate) return;
+  const r = el.getBoundingClientRect();
+  const cx = Math.min(Math.max(r.left + r.width / 2, 90), innerWidth - 90), cy = Math.min(Math.max(r.top + r.height / 2, 90), innerHeight - 90);
+  const palette = [color, color, color, '#f7f5ff', color];
+  for (let i = 0; i < 34; i++){
+    const s = document.createElement('i');
+    s.className = 'bean'; s.style.background = palette[i % palette.length];
+    s.style.left = `${cx - 8}px`; s.style.top = `${cy - 5}px`;
+    document.body.appendChild(s);
+    const a = (i / 34) * Math.PI * 2 + Math.random() * .3, d = 80 + Math.random() * 90, rot = Math.random() * 720 - 360;
+    s.animate([
+      { transform:'translate(0,0) rotate(0deg) scale(.6)', opacity:1 },
+      { transform:`translate(${Math.cos(a) * d * .7}px, ${Math.sin(a) * d * .7 - 18}px) rotate(${rot / 2}deg) scale(1.1)`, opacity:1, offset:.45 },
+      { transform:`translate(${Math.cos(a) * d}px, ${Math.sin(a) * d + 30}px) rotate(${rot}deg) scale(.8)`, opacity:0 },
+    ], { duration:900 + Math.random() * 300, easing:'cubic-bezier(.2,.7,.4,1)' }).onfinish = () => s.remove();
+  }
+}
+
+/* ---------- rendering pieces ---------- */
+function taskHTML(t, { showGroup = false } = {}){
+  const g = t.groupId ? groupById(t.groupId) : null;
+  const meta = [];
+  if (t.due){
+    const n = diff(t.due, today());
+    const cls = t.done ? '' : n < 0 ? ' late' : n === 0 ? ' today' : '';
+    meta.push(`<span class="due${cls}">${esc(dueLabel(t.due, t.done))}</span>`);
+  }
+  if (showGroup && g) meta.push(`<span class="gtag" style="--c:${COLORS[g.color]}">${esc(g.name)}</span>`);
+  if (t.note && t.note.trim()) meta.push(`<span class="has" title="Has a note">${icon.note}<span class="sr">Has a note</span></span>`);
+  return `<li class="task${t.done ? ' done' : ''}${ui.flash === t.id ? ' new' : ''}" data-id="${t.id}" style="--c:${colorOf(t)}">
+    <button type="button" class="bubble" data-act="toggle" data-id="${t.id}" aria-pressed="${t.done}" aria-label="${t.done ? 'Mark not done' : 'Mark done'}: ${esc(t.title)}"><i>${icon.check}</i></button>
+    <button type="button" class="tbody" data-act="edit" data-id="${t.id}"><span class="tt">${esc(t.title)}</span>${meta.length ? `<span class="tmeta">${meta.join('')}</span>` : ''}</button>
+  </li>`;
+}
+const list = (items, opts) => `<ul class="tasks">${items.map(t => taskHTML(t, opts)).join('')}</ul>`;
+const sec = (title, n, { cls = '', hint = '' } = {}) => `<div class="sec ${cls}"><h2>${esc(title)}</h2>${n != null ? `<span class="n">${n}</span>` : ''}${hint ? `<span class="hint">${esc(hint)}</span>` : ''}</div>`;
+function backupDue(){
+  if (!db.tasks.length) return false;
+  if (db.bannerHiddenUntil && db.bannerHiddenUntil > today()) return false;
+  if (!db.lastBackup) return db.tasks.length >= 5;
+  return diff(today(), iso(new Date(db.lastBackup))) >= 7;
+}
+function bannerHTML(){
+  if (unreadable) return `<div class="banner err" role="alert">${icon.warn}<p>Your saved list couldn't be read, so this device started fresh. The old data was kept aside. Restore your latest backup.</p><button type="button" class="mini jelly cream" data-act="data">Restore</button></div>`;
+  if (saveFailed) return `<div class="banner err" role="alert">${icon.warn}<p>Couldn't save your latest change. Save a backup file now.</p><button type="button" class="mini jelly cream" data-act="backup">Back up</button></div>`;
+  if (!backupDue()) return '';
+  const msg = db.lastBackup ? `Last backup was ${ago(db.lastBackup).toLowerCase()}.` : `No backup saved yet.`;
+  return `<div class="banner">${icon.safe}<p>${msg}</p><button type="button" class="mini jelly cream" data-act="backup">Back up</button><button type="button" class="xbtn" data-act="banner-hide" aria-label="Hide until tomorrow">${icon.x}</button></div>`;
+}
+
+/* ---------- Today ---------- */
+function renderToday(){
+  const t0 = today(), open = db.tasks.filter(t => !t.done);
+  const late = open.filter(t => t.due && t.due < t0).sort(byDue);
+  const now = open.filter(t => t.due === t0).sort(byDue);
+  const soon = open.filter(t => t.due && t.due > t0 && diff(t.due, t0) < 7).sort(byDue);
+  const unsorted = open.filter(t => !t.due && !t.groupId).sort(byDue);
+  const doneToday = db.tasks.filter(t => t.done && t.doneAt && iso(new Date(t.doneAt)) === t0).sort((a, b) => b.doneAt.localeCompare(a.doneAt));
+  $('todayDate').textContent = longDate(t0);
+  let h = '';
+  const stats = [];
+  if (late.length) stats.push(`<span class="stat late"><b>${late.length}</b> late</span>`);
+  if (now.length) stats.push(`<span class="stat today"><b>${now.length}</b> today</span>`);
+  if (soon.length) stats.push(`<span class="stat"><b>${soon.length}</b> this week</span>`);
+  if (stats.length) h += `<div class="chips">${stats.join('')}</div>`;
+  h += bannerHTML();
+  if (!db.tasks.length && !db.groups.length){
+    h += `<div class="empty">${blob('#ffd54f')}<h2>Hi! Let's fill this up.</h2><p>Type anything in the box below. For something bigger, start a group:</p>
+      <div class="suggest">${SUGGEST.map(([n, c]) => `<button type="button" class="jelly" style="--c:${COLORS[c]}" data-act="suggest" data-name="${esc(n)}" data-color="${c}">${icon.plus}${esc(n)}</button>`).join('')}<button type="button" class="jelly neutral" data-act="new-group">Something else</button></div></div>`;
+  } else if (!late.length && !now.length && !soon.length && !unsorted.length){
+    h += `<div class="empty">${blob('#9be15d')}<h2>Nothing due today</h2><p>Enjoy it, or pick something from your groups.</p>
+      <div class="suggest hide-wide"><button type="button" class="jelly neutral" data-act="tab" data-tab="groups">${icon.grid}See groups</button></div></div>`;
+  }
+  if (late.length) h += sec('Late', late.length, { cls:'late' }) + list(late, { showGroup:true });
+  if (now.length) h += sec('Today', now.length) + list(now, { showGroup:true });
+  if (soon.length) h += sec('Coming up', soon.length) + list(soon, { showGroup:true });
+  if (unsorted.length) h += sec('Unsorted', unsorted.length, { hint:'No date or group yet' }) + list(unsorted);
+  if (doneToday.length) h += sec('Done today', doneToday.length) + list(doneToday, { showGroup:true });
+  $('today').innerHTML = h;
+}
+
+/* ---------- Groups board and group page ---------- */
+function tileHTML(g){
+  const items = openIn(g.id).sort(byDue), next = items.find(t => t.due);
+  const nx = !items.length ? (doneIn(g.id).length ? 'All done!' : 'Nothing yet') : next ? `Next: ${dueLabel(next.due, false)}` : 'No dates set';
+  return `<button type="button" class="gtile jelly lift" style="--c:${COLORS[g.color]};view-transition-name:g-${g.id}" data-act="open-group" data-id="${g.id}">
+    <span class="nm">${esc(g.name)}</span>
+    <span class="ct"><b>${items.length}</b>left</span>
+    <span class="nx">${esc(nx)}</span>
+  </button>`;
+}
+function renderBoard(){
+  const loose = openIn('loose');
+  let h = `<div class="board-head"><h1>Groups</h1><button type="button" class="iconbtn" data-act="data" aria-label="Backup and restore">${icon.safe}</button></div>
+    <div class="board">${db.groups.map(tileHTML).join('')}
+      <button type="button" class="gtile jelly neutral lift" style="view-transition-name:g-loose" data-act="open-group" data-id="loose">
+        <span class="nm">No group</span><span class="ct"><b>${loose.length}</b>left</span><span class="nx">${loose.length ? 'Loose tasks' : 'Nothing loose'}</span>
+      </button>
+      <button type="button" class="gtile new" data-act="new-group">${icon.plus}New group</button>
+    </div>`;
+  if (!db.groups.length) h += `<div class="empty">${blob('#6fa8ff', 'sleepy')}<h2>No groups yet</h2><p>Groups are for the big things, like a wedding or a job hunt.</p></div>`;
+  return h;
+}
+function renderGroup(id){
+  const loose = id === 'loose', g = loose ? null : groupById(id);
+  if (!loose && !g){ ui.group = null; return renderBoard(); }
+  const items = openIn(id).sort(byDue), done = doneIn(id).sort((a, b) => (b.doneAt || '').localeCompare(a.doneAt || ''));
+  const showDone = !!ui.showDoneIn[id];
+  const name = loose ? 'No group' : g.name;
+  const style = loose ? 'view-transition-name:g-loose' : `--c:${COLORS[g.color]};view-transition-name:g-${g.id}`;
+  let h = `<button type="button" class="back" data-act="close-group">${icon.left}Groups</button>
+    <div class="banner-g jelly${loose ? ' neutral' : ''}" style="${style}" data-group="${id}">
+      <h1>${esc(name)}</h1>
+      <span class="meta">${items.length} left${done.length ? `, ${done.length} done` : ''}</span>
+      <div class="acts">
+        <button type="button" class="inkbtn" data-act="add-here">${icon.plus}Add</button>
+        ${loose ? '' : `<button type="button" class="inkbtn" data-act="edit-group" data-id="${g.id}">${icon.pencil}Edit</button>`}
+      </div>
+    </div>`;
+  h += items.length ? list(items) : done.length
+    ? `<div class="empty">${blob(loose ? '#ffd54f' : COLORS[g.color])}<h2>All done!</h2><p>Everything in ${esc(name)} is ticked off.</p></div>`
+    : `<p class="gempty">Nothing here yet. Type below to add the first task.</p>`;
+  if (done.length){
+    h += `<div class="donehead"><button type="button" class="tog" data-act="toggle-done" data-id="${id}" aria-expanded="${showDone}">${icon.chev}Done <span style="color:var(--faint)">${done.length}</span></button><button type="button" class="textbtn" data-act="clear-done" data-id="${id}">Clear</button></div>`;
+    if (showDone) h += list(done);
+  }
+  return h;
+}
+
+/* ---------- Calendar ---------- */
+function renderCal(){
+  const y = ui.month.getFullYear(), m = ui.month.getMonth(), t0 = today(), now = new Date();
+  const offset = (new Date(y, m, 1).getDay() + 6) % 7;
+  const cellsN = Math.ceil((offset + new Date(y, m + 1, 0).getDate()) / 7) * 7;
+  const due = {};
+  for (const t of db.tasks) if (t.due) (due[t.due] = due[t.due] || []).push(t);
+  let cells = '';
+  for (let i = 0; i < cellsN; i++){
+    const d = iso(new Date(y, m, 1 - offset + i));
+    const items = (due[d] || []).slice().sort((a, b) => a.done - b.done);
+    const out = parse(d).getMonth() !== m, isT = d === t0;
+    cells += `<button type="button" class="day${out ? ' out' : ''}${isT ? ' today' : ''}${items.length && !out ? ' busy' : ''}" data-act="pick-day" data-day="${d}" aria-pressed="${d === ui.sel}" tabindex="${d === ui.sel ? 0 : -1}" aria-label="${longDate(d)}${isT ? ', today' : ''}${items.length ? `, ${plural(items.length, 'task')}` : ''}">
+      <span class="num">${parse(d).getDate()}</span>
+      <span class="beads">${items.slice(0, 4).map(t => `<i class="${t.done ? 'd' : ''}" style="--c:${colorOf(t)}"></i>`).join('')}</span>
+    </button>`;
+  }
+  const sel = (due[ui.sel] || []).slice().sort((a, b) => a.done - b.done || byDue(a, b));
+  const isThisMonth = y === now.getFullYear() && m === now.getMonth();
+  const sd = parse(ui.sel);
+  const legend = db.groups.length ? `<div class="legend">${db.groups.map(g => `<span><i style="--c:${COLORS[g.color]}"></i>${esc(g.name)}</span>`).join('')}<span><i class="none"></i>No group</span></div>` : '';
+  return `<div class="calhead">
+      <h1>${MONL[m]}<small>${y}</small></h1>
+      ${isThisMonth ? '' : `<button type="button" class="textbtn" data-act="go-today">Today</button>`}
+      <button type="button" class="iconbtn" data-act="month" data-n="-1" aria-label="Previous month">${icon.left}</button>
+      <button type="button" class="iconbtn" data-act="month" data-n="1" aria-label="Next month">${icon.right}</button>
+    </div>
+    <div class="grid" role="group" aria-label="${MONL[m]} ${y}">
+      ${['M','T','W','T','F','S','S'].map(w => `<span class="wd" aria-hidden="true">${w}</span>`).join('')}
+      ${cells}
+    </div>
+    <div id="dayList">${sec(ui.sel === t0 ? 'Today' : `${DOWL[sd.getDay()]} ${sd.getDate()} ${MON[sd.getMonth()]}`, sel.length || null)}
+    ${sel.length ? list(sel, { showGroup:true }) : `<p class="gempty">Nothing due. Type below to add something for this day.</p>`}</div>
+    ${legend}`;
+}
+
+/* ---------- dock ---------- */
+function setDockContext(){
+  const inGroup = ui.group && (wide() ? mainTab() === 'groups' : ui.tab === 'groups');
+  ui.addGroup = inGroup && ui.group !== 'loose' ? ui.group : null;
+  ui.addDue = ui.tab === 'cal' ? ui.sel : null;
+}
+function updateDock(){
+  if (ui.addGroup && !groupById(ui.addGroup)) ui.addGroup = null;
+  const g = ui.addGroup ? groupById(ui.addGroup) : null;
+  const gc = $('groupChip');
+  gc.innerHTML = `<span class="dotc${g ? '' : ' none'}"></span><span class="lbl">${g ? esc(g.name) : 'No group'}</span>${icon.chev}`;
+  gc.setAttribute('aria-label', `Group for new tasks: ${g ? g.name : 'none'}. Change`);
+  gc.classList.toggle('on', !!g);
+  if (g) gc.style.setProperty('--c', COLORS[g.color]); else gc.style.removeProperty('--c');
+  $('addForm').style.setProperty('--c', g ? COLORS[g.color] : 'var(--cream)');
+  $('addBtn').style.setProperty('--c', g ? COLORS[g.color] : 'var(--cream)');
+  $('addBtn').style.setProperty('--edge', g ? `color-mix(in srgb, ${COLORS[g.color]} 58%, #000)` : 'var(--cream-edge)');
+  const isToday = ui.addDue === today();
+  $('todayChip').classList.toggle('on', isToday);
+  $('todayChip').setAttribute('aria-pressed', String(isToday));
+  $('dateText').textContent = ui.addDue && !isToday ? shortDate(ui.addDue).replace(/ \d{4}$/, '') : 'Date';
+  $('dateChip').classList.toggle('on', !!ui.addDue && !isToday);
+  $('addDate').value = ui.addDue || '';
+  $('dueClear').hidden = !ui.addDue;
+  $('addForm').classList.toggle('ctx', !!(g || ui.addDue));
+  $('addInput').placeholder = g ? `Add to ${g.name}` : ui.addDue && ui.tab === 'cal' ? `Add for ${dueLabel(ui.addDue, false).toLowerCase()}` : 'Add a task';
+  $('addBtn').disabled = !$('addInput').value.trim();
+}
+
+/* ---------- render ---------- */
+function render(){
+  $('shell').dataset.tab = ui.tab;
+  document.querySelectorAll('.tabs [data-tab]').forEach(b => { const on = b.dataset.tab === ui.tab; b.classList.toggle('jelly', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  document.querySelectorAll('.seg [data-tab]').forEach(b => { const on = b.dataset.tab === mainTab(); b.classList.toggle('jelly', on); b.setAttribute('aria-pressed', String(on)); });
+  renderToday();
+  $('main').innerHTML = mainTab() === 'cal' ? renderCal() : ui.group ? renderGroup(ui.group) : renderBoard();
+  updateDock();
+  ui.flash = null;
+}
+/* a view transition lets a tapped tile grow into its group page */
+function transition(fn){
+  if (!document.startViewTransition || reduceMotion() || document.hidden) return fn();
+  const vt = document.startViewTransition(fn);
+  vt.ready.catch(() => {}); vt.finished.catch(() => {});
+}
+
+/* ---------- actions ---------- */
+function setTab(tab){
+  if (tab === 'today' && wide()) tab = 'groups';
+  ui.tab = tab;
+  setDockContext();
+  render();
+}
+function openGroup(id){ transition(() => { ui.group = id; if (!wide()) ui.tab = 'groups'; setDockContext(); render(); $('mainScroll').scrollTop = 0; }); }
+function closeGroup(){ transition(() => { ui.group = null; setDockContext(); render(); }); }
+function selectDay(d, focus = false){
+  ui.sel = d;
+  const dd = parse(d);
+  if (dd.getMonth() !== ui.month.getMonth() || dd.getFullYear() !== ui.month.getFullYear()) ui.month = firstOfMonth(dd);
+  if (ui.tab === 'cal') ui.addDue = d;
+  render();
+  if (focus){ const b = $('main').querySelector(`[data-day="${d}"]`); if (b) b.focus(); }
+  else if (!wide()){ const l = $('dayList'); if (l) l.scrollIntoView({ block:'nearest', behavior:reduceMotion() ? 'auto' : 'smooth' }); }
+}
+function shiftMonth(n){
+  const d = new Date(ui.month.getFullYear(), ui.month.getMonth() + n, 1), now = new Date();
+  selectDay(d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() ? today() : iso(d));
+}
+function toggle(id){
+  const t = find(id); if (!t) return;
+  t.done = !t.done; t.doneAt = t.done ? new Date().toISOString() : null;
+  commit();
+  if (!t.done) return;
+  const g = t.groupId && groupById(t.groupId);
+  const finished = g && !db.tasks.some(x => x.groupId === g.id && !x.done);
+  toast(finished ? `Everything in ${g.name} is done!` : `Done: ${t.title}`, () => { const x = find(id); if (x){ x.done = false; x.doneAt = null; commit(); } });
+}
+function completeFromTile(btn, id){
+  const li = btn.closest('.task'), t = find(id);
+  if (!li || !t || li.dataset.pending) return;
+  if (t.done || reduceMotion()) return toggle(id);
+  li.dataset.pending = '1';
+  li.classList.add('completing');
+  const g = t.groupId && groupById(t.groupId);
+  if (g && !db.tasks.some(x => x.groupId === g.id && !x.done && x.id !== id)){
+    const banner = document.querySelector(`.banner-g[data-group="${g.id}"]`);
+    const from = banner && banner.offsetParent !== null ? banner : btn;
+    beans(from, COLORS[g.color]);
+    if (banner && !reduceMotion()){ banner.classList.remove('celebrate'); void banner.offsetWidth; banner.classList.add('celebrate'); }
+  }
+  setTimeout(() => toggle(id), 600);
+}
+function removeTask(id){
+  const i = db.tasks.findIndex(t => t.id === id); if (i < 0) return;
+  const [t] = db.tasks.splice(i, 1);
+  commit();
+  toast(`Deleted: ${t.title}`, () => { db.tasks.splice(Math.min(i, db.tasks.length), 0, t); commit(); });
+}
+function clearDone(gid){
+  const gone = doneIn(gid); if (!gone.length) return;
+  const ids = new Set(gone.map(t => t.id));
+  db.tasks = db.tasks.filter(t => !ids.has(t.id));
+  commit();
+  toast(`Cleared ${plural(gone.length, 'done task')}`, () => { db.tasks.push(...gone); commit(); });
+}
+function addTask(e){
+  e.preventDefault();
+  const input = $('addInput'), title = input.value.trim();
+  if (!title) return;
+  const t = { id:uid(), title:title.slice(0, 500), note:'', due:ui.addDue, groupId:ui.addGroup, done:false, doneAt:null, createdAt:new Date().toISOString() };
+  db.tasks.push(t);
+  ui.flash = t.id;
+  input.value = '';
+  commit();
+  requestPersist();
+  const el = document.querySelector(`.task[data-id="${t.id}"]`);
+  if (el && el.offsetParent !== null) el.scrollIntoView({ block:'nearest', behavior:reduceMotion() ? 'auto' : 'smooth' });
+  else {
+    const g = t.groupId && groupById(t.groupId);
+    toast(g ? `Added to ${g.name}` : t.due ? `Added for ${dueLabel(t.due, false).toLowerCase()}` : 'Added');
+  }
+}
+
+/* ---------- sheets ---------- */
+function closeSheet(d){
+  if (!d.open) return;
+  if (reduceMotion()){ d.close(); return; }
+  d.classList.add('closing');
+  setTimeout(() => { d.classList.remove('closing'); d.close(); }, 170);
+}
+
+/* task sheet */
+function paintTaskBand(t){
+  const g = t.groupId && groupById(t.groupId);
+  const band = $('tsBand');
+  band.classList.toggle('neutral', !g);
+  if (g) band.style.setProperty('--c', COLORS[g.color]); else band.style.removeProperty('--c');
+}
+function paintDateChips(t){
+  const opts = [['Today', today()], ['Tomorrow', addDays(today(), 1)], ['In a week', addDays(today(), 7)], ['No date', '']];
+  $('tsDateChips').innerHTML = opts.map(([l, v]) => `<button type="button" class="chip${(t.due || '') === v ? ' on' : ''}" data-due="${v}" aria-pressed="${(t.due || '') === v}">${l}</button>`).join('');
+}
+function openTask(id){
+  const t = find(id); if (!t) return;
+  ui.editing = { id };
+  $('tsTitle').value = t.title;
+  $('tsNote').value = t.note;
+  $('tsDue').value = t.due || '';
+  $('tsToggle').textContent = t.done ? 'Not done' : 'Mark done';
+  paintTaskBand(t);
+  paintDateChips(t);
+  $('tsGroupSet').hidden = !db.groups.length;
+  const opts = [{ v:'', name:'No group', c:null }, ...db.groups.map(g => ({ v:g.id, name:g.name, c:COLORS[g.color] }))];
+  $('tsGroups').innerHTML = opts.map(o => `<label class="chip" style="--c:${o.c || 'var(--cream)'}"><input type="radio" name="tgroup" value="${o.v}" ${(t.groupId || '') === o.v ? 'checked' : ''}><span class="dotc${o.c ? '' : ' none'}"></span>${esc(o.name)}</label>`).join('');
+  $('taskSheet').showModal();
+  $('tsTitle').rows = 1;
+  fitTitle();
+}
+const editingTask = () => ui.editing && find(ui.editing.id);
+/* the title box grows with its text (field-sizing where supported, measured elsewhere) */
+function fitTitle(){ const el = $('tsTitle'); if (CSS.supports && CSS.supports('field-sizing','content')) return; el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
+$('tsTitle').addEventListener('input', fitTitle);
+$('tsTitle').addEventListener('input', e => { const t = editingTask(); const v = e.target.value.replace(/\s+/g, ' ').trim(); if (t && v){ t.title = v.slice(0, 500); commit(); } });
+$('tsTitle').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); closeSheet($('taskSheet')); } });
+$('tsNote').addEventListener('input', e => { const t = editingTask(); if (t){ t.note = e.target.value.slice(0, 5000); commit(); } });
+$('tsDue').addEventListener('change', e => { const t = editingTask(); if (t){ t.due = e.target.value || null; commit(); paintDateChips(t); } });
+$('tsDateChips').addEventListener('click', e => {
+  const b = e.target.closest('[data-due]'); const t = editingTask(); if (!b || !t) return;
+  t.due = b.dataset.due || null; $('tsDue').value = t.due || ''; commit(); paintDateChips(t);
+});
+$('tsGroups').addEventListener('change', e => { const t = editingTask(); if (t){ t.groupId = e.target.value || null; commit(); paintTaskBand(t); } });
+$('tsToggle').addEventListener('click', () => { const id = ui.editing.id; closeSheet($('taskSheet')); toggle(id); });
+$('tsDelete').addEventListener('click', () => { const id = ui.editing.id; closeSheet($('taskSheet')); removeTask(id); });
+$('tsClose').addEventListener('click', () => closeSheet($('taskSheet')));
+$('taskSheet').addEventListener('close', () => { ui.editing = null; });
+
+/* group sheet */
+function paintPreview(){
+  const name = $('gsName').value.trim();
+  const color = (document.querySelector('input[name="gcolor"]:checked') || {}).value || 'blueberry';
+  $('gsPreview').style.setProperty('--c', COLORS[color]);
+  $('gsPrevName').textContent = name || 'Group name';
+  $('gsPrevName').classList.toggle('ph', !name);
+  $('gsPrevColor').textContent = COLOR_NAMES[color];
+}
+function openGroupSheet(id, { forAdd = false, name = '', color = null } = {}){
+  const g = id ? groupById(id) : null;
+  ui.groupEdit = { id:g ? g.id : null, forAdd };
+  $('gsHead').textContent = g ? 'Edit group' : 'New group';
+  $('gsName').value = g ? g.name : name;
+  $('gsErr').hidden = true;
+  const used = new Set(db.groups.map(x => x.color));
+  const def = g ? g.color : (color && COLORS[color] ? color : (Object.keys(COLORS).find(k => !used.has(k)) || 'blueberry'));
+  $('gsColors').innerHTML = Object.keys(COLORS).map(k => `<label class="sw" style="--c:${COLORS[k]}"><input type="radio" name="gcolor" value="${k}" ${k === def ? 'checked' : ''}><span class="sr">${COLOR_NAMES[k]}</span></label>`).join('');
+  $('gsDelete').hidden = !g;
+  $('gsSave').textContent = g ? 'Save' : 'Create';
+  paintPreview();
+  $('groupSheet').showModal();
+  if (!name) $('gsName').focus();
+}
+function groupError(msg){ $('gsErr').textContent = msg; $('gsErr').hidden = false; $('gsName').focus(); }
+$('gsName').addEventListener('input', () => { paintPreview(); $('gsErr').hidden = true; });
+$('gsColors').addEventListener('change', paintPreview);
+$('groupForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const edit = ui.groupEdit, name = $('gsName').value.trim();
+  const color = (document.querySelector('input[name="gcolor"]:checked') || {}).value || 'blueberry';
+  if (!name) return groupError('Give the group a name.');
+  const clash = db.groups.find(x => x.name.toLowerCase() === name.toLowerCase() && x.id !== edit.id);
+  if (clash) return groupError(`You already have a group called “${clash.name}”.`);
+  closeSheet($('groupSheet'));
+  if (edit.id){ const g = groupById(edit.id); g.name = name; g.color = color; commit(); return; }
+  const g = { id:uid(), name:name.slice(0, 60), color, collapsed:false };
+  db.groups.push(g);
+  save();
+  if (edit.forAdd){ ui.addGroup = g.id; render(); }
+  else openGroup(g.id);
+  setTimeout(() => $('addInput').focus(), 220);
+});
+$('gsCancel').addEventListener('click', () => closeSheet($('groupSheet')));
+$('gsDelete').addEventListener('click', () => {
+  const id = ui.groupEdit.id, i = db.groups.findIndex(g => g.id === id);
+  if (i < 0) return;
+  const [g] = db.groups.splice(i, 1);
+  const moved = db.tasks.filter(t => t.groupId === id).map(t => t.id);
+  db.tasks.forEach(t => { if (t.groupId === id) t.groupId = null; });
+  if (ui.group === id) ui.group = null;
+  closeSheet($('groupSheet'));
+  setDockContext();
+  commit();
+  toast(moved.length ? `Deleted ${g.name}. Its ${plural(moved.length, 'task')} moved to No group.` : `Deleted ${g.name}`,
+    () => { db.groups.splice(Math.min(i, db.groups.length), 0, g); db.tasks.forEach(t => { if (moved.includes(t.id)) t.groupId = g.id; }); commit(); });
+});
+
+/* group picker */
+function openPicker(){
+  const cur = ui.addGroup || '';
+  const items = [{ v:'', name:'No group', c:null }, ...db.groups.map(g => ({ v:g.id, name:g.name, c:COLORS[g.color] }))];
+  $('pickList').innerHTML = items.map(it => `<button type="button" class="pickrow" data-act="pick" data-value="${it.v}" aria-pressed="${cur === it.v}" style="--c:${it.c || 'transparent'}"><span class="dotc${it.c ? '' : ' none'}"></span><span>${esc(it.name)}</span>${cur === it.v ? icon.tick : ''}</button>`).join('')
+    + `<button type="button" class="pickrow new" data-act="pick" data-value="__new">${icon.plus}<span>New group</span></button>`;
+  $('pickSheet').showModal();
+}
+function pickGroup(v){
+  closeSheet($('pickSheet'));
+  if (v === '__new') return setTimeout(() => openGroupSheet(null, { forAdd:true }), 180);
+  ui.addGroup = v || null;
+  updateDock();
+  setTimeout(() => $('addInput').focus(), 180);
+}
+
+/* backup and restore */
+function renderData(){
+  const n = db.tasks.length, open = db.tasks.filter(t => !t.done).length, gN = db.groups.length;
+  const stale = !db.lastBackup || backupDue();
+  $('dsFacts').innerHTML = `
+    <div class="fact"><b>${open}</b><span>to do, ${n - open} done</span></div>
+    <div class="fact"><b>${gN}</b><span>${gN === 1 ? 'group' : 'groups'}</span></div>
+    <div class="fact wide${stale ? ' warn' : ''}"><div><b>${db.lastBackup ? ago(db.lastBackup) : 'Never'}</b><span>last backup</span></div></div>
+    <div class="fact wide">${icon.safe}<p>${persisted === true ? 'The browser has agreed not to clear this data on its own.' : persisted === false ? 'The browser may clear this data if the device runs low on space. Keep a backup.' : 'This browser does not say whether it may clear this data. Keep a backup.'}</p></div>`;
+}
+async function openData(){ await checkPersist(); renderData(); $('dataSheet').showModal(); }
+function markBackup(){ db.lastBackup = new Date().toISOString(); db.bannerHiddenUntil = null; commit(); renderData(); toast('Backup saved'); }
+async function exportData(){
+  requestPersist();
+  const data = { app:'todo', version:1, exportedAt:new Date().toISOString(), groups:db.groups, tasks:db.tasks };
+  const name = `todo-backup-${today()}.json`;
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+  /* on phones, offer the share sheet so the file can go straight to Drive, iCloud or Files */
+  if (matchMedia('(pointer: coarse)').matches && navigator.canShare){
+    const file = new File([blob], name, { type:'application/json' });
+    if (navigator.canShare({ files:[file] })){
+      try { await navigator.share({ files:[file], title:'To-do backup' }); markBackup(); return; }
+      catch (err){ if (err && err.name === 'AbortError') return; }
+    }
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  markBackup();
+}
+async function importData(file){
+  let data;
+  try { data = normalise(JSON.parse(await file.text())); }
+  catch (_) { closeSheet($('dataSheet')); toast(`That file isn't a to-do backup.`); return; }
+  const ok = confirm(`Replace what is on this device (${plural(db.tasks.length, 'task')}, ${plural(db.groups.length, 'group')}) with the backup (${plural(data.tasks.length, 'task')}, ${plural(data.groups.length, 'group')})?`);
+  if (!ok) return;
+  const prev = JSON.stringify(db);
+  try { localStorage.setItem(`${KEY}.before-restore`, prev); } catch (_) {}
+  data.lastBackup = new Date().toISOString();
+  db = data;
+  unreadable = false;
+  ui.group = null;
+  closeSheet($('dataSheet'));
+  commit();
+  toast('Backup restored', () => { db = normalise(JSON.parse(prev)); commit(); });
+}
+$('dsExport').addEventListener('click', exportData);
+$('dsImportBtn').addEventListener('click', () => $('dsImport').click());
+$('dsImport').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f) importData(f); });
+$('dsClose').addEventListener('click', () => closeSheet($('dataSheet')));
+
+/* ---------- wiring ---------- */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const id = b.dataset.id;
+  switch (b.dataset.act){
+    case 'tab': setTab(b.dataset.tab); break;
+    case 'toggle': completeFromTile(b, id); break;
+    case 'edit': openTask(id); break;
+    case 'open-group': openGroup(id); break;
+    case 'close-group': closeGroup(); break;
+    case 'add-here': setDockContext(); updateDock(); $('addInput').focus(); break;
+    case 'edit-group': openGroupSheet(id); break;
+    case 'new-group': openGroupSheet(null); break;
+    case 'suggest': openGroupSheet(null, { name:b.dataset.name, color:b.dataset.color }); break;
+    case 'toggle-done': ui.showDoneIn[id] = !ui.showDoneIn[id]; render(); break;
+    case 'clear-done': clearDone(id); break;
+    case 'pick-group': openPicker(); break;
+    case 'pick': pickGroup(b.dataset.value); break;
+    case 'due-today': ui.addDue = ui.addDue === today() ? null : today(); updateDock(); $('addInput').focus(); break;
+    case 'data': openData(); break;
+    case 'backup': exportData(); break;
+    case 'banner-hide': db.bannerHiddenUntil = addDays(today(), 1); commit(); break;
+    case 'undo': runUndo(); break;
+    case 'month': shiftMonth(Number(b.dataset.n)); break;
+    case 'go-today': selectDay(today()); break;
+    case 'pick-day': selectDay(b.dataset.day); break;
+  }
+});
+$('main').addEventListener('keydown', e => {
+  const b = e.target.closest('[data-day]'); if (!b) return;
+  const step = { ArrowLeft:-1, ArrowRight:1, ArrowUp:-7, ArrowDown:7 }[e.key];
+  if (!step) return;
+  e.preventDefault();
+  selectDay(addDays(b.dataset.day, step), true);
+});
+document.addEventListener('keydown', e => {
+  if (e.target.matches('input,textarea') || document.querySelector('dialog[open]') || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.key === 'n' || e.key === '/'){ e.preventDefault(); $('addInput').focus(); }
+  if (e.key === 'Escape' && ui.group) closeGroup();
+});
+$('addForm').addEventListener('submit', addTask);
+$('addInput').addEventListener('input', () => { $('addBtn').disabled = !$('addInput').value.trim(); });
+$('addDate').addEventListener('change', () => { ui.addDue = $('addDate').value || null; updateDock(); });
+$('addDate').addEventListener('click', () => { try { $('addDate').showPicker(); } catch (_) {} });
+$('dueClear').addEventListener('click', () => { ui.addDue = null; updateDock(); $('addInput').focus(); });
+if (window.ResizeObserver) new ResizeObserver(placeToast).observe($('addForm'));
+/* tapping the dimmed area closes any sheet */
+document.querySelectorAll('dialog.sheet').forEach(d => d.addEventListener('click', e => { if (e.target === d) closeSheet(d); }));
+/* another tab changed the list: reload it rather than overwrite */
+window.addEventListener('storage', e => { if (e.key === KEY){ db = load(); render(); } });
+/* coming back after midnight: refresh "today" */
+document.addEventListener('visibilitychange', () => { if (!document.hidden) render(); });
+/* crossing the laptop breakpoint changes which panes exist */
+matchMedia('(min-width: 900px)').addEventListener('change', () => {
+  if (wide() && ui.tab === 'today') ui.tab = 'groups';
+  if (!wide() && ui.tab === 'groups' && !ui.group) ui.tab = 'today';
+  setDockContext(); render();
+});
+
+/* fill icon placeholders: spans become the icon, buttons get it inside */
+document.querySelectorAll('[data-icon]').forEach(el => {
+  const i = icon[el.dataset.icon]; if (!i) return;
+  if (el.tagName === 'SPAN') el.outerHTML = i; else el.innerHTML = i;
+});
+if (wide()) ui.tab = 'groups';
+checkPersist();
+render();
+/* offline support once hosted; skipped when opened as a local file */
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>

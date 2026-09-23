@@ -1,0 +1,4 @@
+# local tooling for the preview server
+.claude/
+# never commit backup files of real tasks
+todo-backup-*.json
